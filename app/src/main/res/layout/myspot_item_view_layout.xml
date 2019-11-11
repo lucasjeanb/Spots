@@ -33,14 +33,14 @@
             android:textSize="24dp"
             android:textStyle="bold"
             android:layout_marginTop="15dp"
-            app:layout_constraintBottom_toTopOf="@+id/Coord_textview"
+            app:layout_constraintBottom_toTopOf="@+id/coord_textview"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/spot_imageview"
             app:layout_constraintTop_toTopOf="parent"
             />
 
         <TextView
-            android:id="@+id/Coord_textview"
+            android:id="@+id/coord_textview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
