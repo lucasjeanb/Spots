@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.example.spots.R
+import kotlinx.android.synthetic.main.fragment_myspots.*
 
 class MySpotsFragment : Fragment() {
 
@@ -27,5 +28,17 @@ class MySpotsFragment : Fragment() {
             textView.text = it
         })
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        addLocation_fab.setOnClickListener {
+            var addLocationFragment = AddLocationFragment()
+            fragmentManager?.beginTransaction()
+                ?.add(R.id.addLocation_framelayout, addLocationFragment)
+                ?.addToBackStack(null)
+                ?.commit()
+        }
     }
 }

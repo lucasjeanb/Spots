@@ -3,6 +3,7 @@ package com.example.spots.ui.map
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +21,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.GroundOverlayOptions
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.android.synthetic.main.fragment_add_location.*
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
@@ -46,14 +48,17 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         map.mapType = GoogleMap.MAP_TYPE_NORMAL
 
+
         val latitude = 33.912670
         val longitude = -84.570353
         val homeLatLng = LatLng(latitude, longitude)
         val zoomLevel = 15f
 
+        currentLocation_button
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
 
         enableMyLocation()
+        Log.d("LOG_X", enableMyLocation().toString())
 
         val overlaySize = 100f
         val androidOverlay = GroundOverlayOptions()
