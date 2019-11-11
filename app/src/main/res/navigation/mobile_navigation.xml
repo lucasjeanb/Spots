@@ -15,11 +15,37 @@
         android:id="@+id/navigation_myspots"
         android:name="com.example.spots.ui.myspots.MySpotsFragment"
         android:label="@string/title_myspots"
-        tools:layout="@layout/fragment_myspots" />
+        tools:layout="@layout/fragment_myspots" >
+        <action
+            android:id="@+id/action_navigation_myspots_to_addLocationFragment2"
+            app:destination="@id/addLocationFragment2"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_contacts"
         android:name="com.example.spots.ui.contacts.ContactsFragment"
         android:label="@string/title_contacts"
         tools:layout="@layout/fragment_contacts" />
+    <fragment
+        android:id="@+id/addLocationFragment2"
+        android:name="com.example.spots.ui.myspots.AddLocationFragment"
+        android:label="fragment_add_location"
+        tools:layout="@layout/fragment_add_location" >
+        <action
+            android:id="@+id/action_addLocationFragment2_to_selectLocationFragment2"
+            app:destination="@+id/selectLocationFragment2"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/selectLocationFragment2"
+        android:name="com.example.spots.ui.myspots.SelectLocationFragment"
+        android:label="fragment_select_location"
+        tools:layout="@layout/fragment_select_location" />
 </navigation>
