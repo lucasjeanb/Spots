@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/navigation_map"
-        android:name="com.example.spots.ui.myspots.MySpotsFragment"
+        android:name="com.example.spots.ui.map.MapFragment"
         android:label="@string/title_map"
         tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/navigation_myspots"
-        android:name="com.example.spots.ui.map.MapFragment"
+        android:name="com.example.spots.ui.myspots.MySpotsFragment"
         android:label="@string/title_myspots"
         tools:layout="@layout/fragment_myspots" />
 

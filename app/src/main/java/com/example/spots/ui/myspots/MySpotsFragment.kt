@@ -21,8 +21,8 @@ class MySpotsFragment : Fragment() {
     ): View? {
         homeViewModel =
             ViewModelProviders.of(this).get(MySpotsViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_map, container, false)
-        val textView: TextView = root.findViewById(R.id.text_home)
+        val root = inflater.inflate(R.layout.fragment_myspots, container, false)
+        val textView: TextView = root.findViewById(R.id.text_myspots)
         homeViewModel.text.observe(this, Observer {
             textView.text = it
         })
