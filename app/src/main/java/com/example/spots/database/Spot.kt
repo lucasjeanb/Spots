@@ -7,9 +7,18 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "spot_table")
 data class Spot(
     @PrimaryKey(autoGenerate = true)
-    var id:Int,
+    var id:Int?,
 
     @ColumnInfo(name = "spot_name")
-    var spotName: String
+    var spotName: String,
+
+    @ColumnInfo(name = "spot_coord")
+    var spotCoord: String
 
 )
+
+{
+    constructor(
+        spotName: String, spotCoord: String
+    ) : this(null, spotName, spotCoord)
+}

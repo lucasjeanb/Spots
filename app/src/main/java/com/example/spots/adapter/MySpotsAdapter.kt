@@ -24,12 +24,13 @@ class MySpotsAdapter (private val context: Context, private val spots: List<Spot
     override fun onBindViewHolder(viewHolder: ViewHolder, index: Int) {
         viewHolder.itemView.animation = AnimationUtils.loadAnimation(context,R.anim.item_animation_fall_down)
         viewHolder.spotName.text = spots?.get(index)?.spotName
+        viewHolder.spotCoord.text = spots?.get(index)?.spotCoord
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
     {
         var spotName: TextView = itemView.findViewById(R.id.spotName_textview) as TextView
-        var spotName: TextView = itemView.findViewById(R.id.coord_textview)asTextView
+        var spotCoord: TextView = itemView.findViewById(R.id.coord_textview)as TextView
     }
 
 }
