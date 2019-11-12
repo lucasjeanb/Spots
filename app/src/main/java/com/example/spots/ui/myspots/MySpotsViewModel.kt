@@ -14,6 +14,8 @@ class MySpotsViewModel (application: Application) : AndroidViewModel(application
 
     fun getSpots() = repository.getSpots()
 
+    fun delete(spot: Spot) {repository.delete(spot)}
+
     fun setSpot(spot: Spot) { repository.setSpot(spot)}
 
 }

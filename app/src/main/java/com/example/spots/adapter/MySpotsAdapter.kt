@@ -9,8 +9,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.spots.R
 import com.example.spots.database.Spot
+import java.text.FieldPosition
 
-class MySpotsAdapter (private val context: Context, private val spots: List<Spot>?) : RecyclerView.Adapter<MySpotsAdapter.ViewHolder>(){
+class MySpotsAdapter (private val spotsAdapterDelegate: SpotsAdapterDelegate?, private val context: Context, private val spots: List<Spot>?) : RecyclerView.Adapter<MySpotsAdapter.ViewHolder>(){
+
+    interface SpotsAdapterDelegate{
+        fun spotsSelect(spot: Spot)
+    }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, index: Int): ViewHolder {
         val rootView = LayoutInflater.from(viewGroup.context).inflate(R.layout.myspot_item_view_layout, viewGroup, false)
@@ -27,10 +32,16 @@ class MySpotsAdapter (private val context: Context, private val spots: List<Spot
         viewHolder.spotCoord.text = spots?.get(index)?.spotCoord
     }
 
+    fun getSpotAt(position: Int):Spot {
+        return spots?.get(position)!!
+    }
+
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
     {
         var spotName: TextView = itemView.findViewById(R.id.spotName_textview) as TextView
         var spotCoord: TextView = itemView.findViewById(R.id.coord_textview)as TextView
-    }
+
+
+        }
 
 }

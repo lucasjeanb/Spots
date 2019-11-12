@@ -27,9 +27,18 @@ class SpotRepository(application: Application) : CoroutineScope {
         launch  { setSpotBG(spot) }
     }
 
+    fun delete(spot: Spot) {
+        launch  { deleteBG(spot) }
+    }
+
     private suspend fun setSpotBG(spot: Spot){
         withContext(Dispatchers.IO){
             spotDao?.setSpot(spot)
+        }
+    }
+    private suspend fun deleteBG(spot: Spot){
+        withContext(Dispatchers.IO){
+            spotDao?.delete(spot)
         }
     }
 
