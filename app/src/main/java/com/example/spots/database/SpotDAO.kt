@@ -6,7 +6,7 @@ import androidx.room.*
 @Dao
 interface SpotDAO{
     @Query("SELECT * FROM spot_table ORDER BY id ASC")
-    fun getSpots(): LiveData<List<Spot>>
+    fun getSpots(): LiveData<List<Spot>>?
 
     @Query("DELETE FROM spot_table")
     fun deleteAllSpots()

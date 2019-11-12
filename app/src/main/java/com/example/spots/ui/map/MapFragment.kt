@@ -12,8 +12,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.example.spots.R
+import com.example.spots.database.Spot
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -21,13 +23,18 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.GroundOverlayOptions
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.fragment_add_location.*
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
-    private lateinit var dashboardViewModel: MapViewModel
+    val viewModel: MapViewModel by lazy {
+        ViewModelProvider(requireActivity(),
+            ViewModelProvider.AndroidViewModelFactory(requireActivity().application)).get(MapViewModel::class.java)
+    }
     private lateinit var map: GoogleMap
     private val REQUEST_LOCATION_PERMISSION = 1
+    lateinit var spotList: List<Spot>
 
 
     override fun onCreateView(
@@ -42,6 +49,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
         return root
     }
+
+
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
@@ -66,7 +75,21 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             .position(homeLatLng, overlaySize)
         map.addGroundOverlay(androidOverlay)
 
+        viewModel.getSpots()?.observe(this, Observer<List<Spot>> { this.addMarker(it) })
+
         }
+
+    private fun addMarker(spots: List<Spot>){
+        for (i in spots.indices){
+            map.addMarker(
+                MarkerOptions()
+                    .position(LatLng(spotList[i].spotCoord, spotList[i].favoriteLongitude))
+                    .title(spotList[i].favoriteName)
+                    .snippet(spotList[i].toString())
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
+            )
+        }
+    }
 
     private fun enableMyLocation() {
         if (isPermissionGranted()){
