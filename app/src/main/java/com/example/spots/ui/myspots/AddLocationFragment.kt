@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spots.R
 import com.example.spots.adapter.MySpotsAdapter
@@ -25,8 +26,7 @@ import kotlinx.android.synthetic.main.fragment_myspots.*
  */
 class AddLocationFragment : Fragment() {
 
-    lateinit var mFusedLocationClient: FusedLocationProviderClient
-    lateinit var coordinate: String
+    private lateinit var homeViewModel: MySpotsViewModel
     var latitude: Double = 0.0
     var longitude: Double = 0.0
 
@@ -39,20 +39,17 @@ class AddLocationFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        homeViewModel =
+            ViewModelProviders.of(this).get(MySpotsViewModel::class.java)
+        startLocationUpdate()
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_add_location, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        getLastLocation()
 
         selectLocation_button.setOnClickListener {
-            var bundle = Bundle()
-            arguments?.putDouble("latitude", latitude)
-
             var selectLocationFragment = SelectLocationFragment()
             fragmentManager?.beginTransaction()
                 ?.add(R.id.selectLocation_framelayout, selectLocationFragment)
@@ -61,8 +58,7 @@ class AddLocationFragment : Fragment() {
         }
 
         currentLocation_button.setOnClickListener {
-            locationSelect_textview.text = coordinate
-
+            locationSelect_textview.text =  "$latitude, $longitude"
         }
 
         confirmLocation_button.setOnClickListener {
@@ -71,6 +67,7 @@ class AddLocationFragment : Fragment() {
             viewModel.setSpot(newSpot)
         }
     }
+    /*
     private fun getLastLocation() {
 
                 mFusedLocationClient.lastLocation.addOnCompleteListener(requireActivity()) { task ->
@@ -83,6 +80,14 @@ class AddLocationFragment : Fragment() {
 
                 }
             }
+
+     */
+    private fun startLocationUpdate() {
+        homeViewModel.getLocationData().observe(this, Observer {
+            longitude = it.longitude
+            latitude = it.latitude
+        })
+    }
 
 
 
