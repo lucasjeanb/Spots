@@ -1,6 +1,7 @@
 package com.example.spots.ui.myspots
 
 
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -15,7 +16,11 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import java.util.*
 
 /**
  * A simple [Fragment] subclass.
@@ -24,6 +29,7 @@ class SelectLocationFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var map: GoogleMap
     private lateinit var homeViewModel: MySpotsViewModel
+    var  singleMarker = false
     var latitude: Double = 0.0
     var longitude: Double = 0.0
 
@@ -54,11 +60,8 @@ class SelectLocationFragment : Fragment(), OnMapReadyCallback {
 
         map.mapType = GoogleMap.MAP_TYPE_NORMAL
 
-        val homeLatLng = LatLng(latitude, longitude)
-        val zoomLevel = 4f
+        setMapLongClick(map)
 
-        Log.d("LOG_X", homeLatLng.toString())
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
         map.setMyLocationEnabled(true)
     }
 
@@ -68,9 +71,37 @@ class SelectLocationFragment : Fragment(), OnMapReadyCallback {
                 latitude = it.latitude
                 Log.d("LOG_X", "$latitude, $longitude")
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude), 4f))
-                map.animateCamera(CameraUpdateFactory.zoomTo(11f), 2000, null)
+                map.animateCamera(CameraUpdateFactory.zoomTo(11f))
             })
     }
+    lateinit var marker: Marker
 
+    private fun setMapLongClick(map:GoogleMap) {
+        map.setOnMapClickListener { latLng ->
+            val snippet = String.format(
+                Locale.getDefault(),
+                "Lat: %1$.5f, Long:%2$.5f",
+                latLng.latitude,
+                latLng.longitude
+            )
+            /*
+            val newPerson = FavoriteEntity(latLng.latitude, latLng.longitude, "Dropped Pin")
+            viewModel.addPlace(newPerson)
+
+             */
+            map.clear()
+
+            map.addMarker(
+                    MarkerOptions()
+                        .position(latLng)
+                        .title("Dropped Pin")
+                        .snippet(snippet)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                )
+                Log.d("LOG_X", latLng.toString())
+
+
+        }
+        }
 
 }
