@@ -63,7 +63,7 @@ class MySpotsFragment : Fragment(), MySpotsAdapter.SpotsAdapterDelegate {
 
         adapter = MySpotsAdapter(null,requireContext(), spots)
         val layoutManager = LinearLayoutManager(context?.applicationContext)
-        layoutManager.stackFromEnd = true
+        layoutManager.stackFromEnd = false
         myspots_recyclerview.layoutManager = layoutManager
         myspots_recyclerview.adapter = adapter
     }

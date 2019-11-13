@@ -27,21 +27,40 @@ import kotlinx.android.synthetic.main.fragment_myspots.*
 class AddLocationFragment : Fragment() {
 
     private lateinit var homeViewModel: MySpotsViewModel
-    var latitude: Double = 0.0
-    var longitude: Double = 0.0
+    var latitude: Double = 1.0
+    var longitude: Double = 1.0
+    var latitudeVM: Double = 1.0
+    var longitudeVM: Double = 1.0
+
 
     val viewModel: MySpotsViewModel by lazy {
         ViewModelProvider(requireActivity(),
             ViewModelProvider.AndroidViewModelFactory(requireActivity().application)).get(MySpotsViewModel::class.java)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        homeViewModel = activity?.run {
+            ViewModelProviders.of(this)[MySpotsViewModel::class.java]
+        }?: throw Exception("Invalid Activity")
+
+        homeViewModel.latitudeViewModel.observe(this, Observer {
+            latitude = homeViewModel.latitudeViewModel.value!!
+            Log.d("LOG_X", latitude.toString())
+        })
+        homeViewModel.longitudeViewModel.observe(this, Observer {
+            longitude = homeViewModel.longitudeViewModel.value!!
+            Log.d("LOG_X", longitude.toString())
+
+        })
+
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        homeViewModel =
-            ViewModelProviders.of(this).get(MySpotsViewModel::class.java)
-        startLocationUpdate()
+          startLocationUpdate()
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_add_location, container, false)
     }
@@ -64,24 +83,11 @@ class AddLocationFragment : Fragment() {
         confirmLocation_button.setOnClickListener {
             val spotName = locationName_edittext.text.toString()
             val newSpot = Spot(spotName, latitude, longitude)
-            viewModel.setSpot(newSpot)
+            homeViewModel.setSpot(newSpot)
+            fragmentManager?.popBackStack()
         }
     }
-    /*
-    private fun getLastLocation() {
 
-                mFusedLocationClient.lastLocation.addOnCompleteListener(requireActivity()) { task ->
-                    var location: Location? = task.result
-
-                    coordinate = "${location?.latitude.toString()}, ${location?.longitude.toString()}"
-                    latitude = location!!.latitude
-                    longitude = location!!.longitude
-                    Log.d("LOG_X", coordinate)
-
-                }
-            }
-
-     */
     private fun startLocationUpdate() {
         homeViewModel.getLocationData().observe(this, Observer {
             longitude = it.longitude
