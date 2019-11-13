@@ -27,6 +27,8 @@ class AddLocationFragment : Fragment() {
 
     lateinit var mFusedLocationClient: FusedLocationProviderClient
     lateinit var coordinate: String
+    var latitude: Double = 0.0
+    var longitude: Double = 0.0
 
     val viewModel: MySpotsViewModel by lazy {
         ViewModelProvider(requireActivity(),
@@ -45,15 +47,27 @@ class AddLocationFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        getLastLocation()
 
+        selectLocation_button.setOnClickListener {
+            var bundle = Bundle()
+            arguments?.putDouble("latitude", latitude)
+
+            var selectLocationFragment = SelectLocationFragment()
+            fragmentManager?.beginTransaction()
+                ?.add(R.id.selectLocation_framelayout, selectLocationFragment)
+                ?.addToBackStack(null)
+                ?.commit()
+        }
 
         currentLocation_button.setOnClickListener {
-            getLastLocation()
+            locationSelect_textview.text = coordinate
+
         }
 
         confirmLocation_button.setOnClickListener {
             val spotName = locationName_edittext.text.toString()
-            val newSpot = Spot(spotName, coordinate)
+            val newSpot = Spot(spotName, latitude, longitude)
             viewModel.setSpot(newSpot)
         }
     }
@@ -63,7 +77,8 @@ class AddLocationFragment : Fragment() {
                     var location: Location? = task.result
 
                     coordinate = "${location?.latitude.toString()}, ${location?.longitude.toString()}"
-                    locationSelect_textview.text = coordinate
+                    latitude = location!!.latitude
+                    longitude = location!!.longitude
                     Log.d("LOG_X", coordinate)
 
                 }

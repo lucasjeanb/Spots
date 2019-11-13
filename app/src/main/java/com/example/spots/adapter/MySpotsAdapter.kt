@@ -29,7 +29,7 @@ class MySpotsAdapter (private val spotsAdapterDelegate: SpotsAdapterDelegate?, p
     override fun onBindViewHolder(viewHolder: ViewHolder, index: Int) {
         viewHolder.itemView.animation = AnimationUtils.loadAnimation(context,R.anim.item_animation_fall_down)
         viewHolder.spotName.text = spots?.get(index)?.spotName
-        viewHolder.spotCoord.text = spots?.get(index)?.spotCoord
+        viewHolder.spotCoord.text = "${spots?.get(index)?.spotLatitude} ${spots?.get(index)?.spotLongitude}"
     }
 
     fun getSpotAt(position: Int):Spot {

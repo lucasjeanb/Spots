@@ -12,13 +12,13 @@ data class Spot(
     @ColumnInfo(name = "spot_name")
     var spotName: String,
 
-    @ColumnInfo(name = "spot_coord")
-    var spotCoord: String
+    @ColumnInfo(name = "favorite_latitude") var spotLatitude: Double,
+    @ColumnInfo(name = "favorite_longitude") var spotLongitude: Double
 
 )
 
 {
     constructor(
-        spotName: String, spotCoord: String
-    ) : this(null, spotName, spotCoord)
+        spotName: String, spotLatitude: Double, spotLongitude: Double
+    ) : this(null, spotName, spotLatitude, spotLongitude)
 }

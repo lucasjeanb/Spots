@@ -2,6 +2,7 @@ package com.example.spots.ui.map
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,6 +17,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.example.spots.R
 import com.example.spots.database.Spot
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -34,7 +37,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
     private lateinit var map: GoogleMap
     private val REQUEST_LOCATION_PERMISSION = 1
-    lateinit var spotList: List<Spot>
 
 
     override fun onCreateView(
@@ -50,23 +52,20 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         return root
     }
 
-
-
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
         map.mapType = GoogleMap.MAP_TYPE_NORMAL
+        enableMyLocation()
 
 
         val latitude = 33.912670
         val longitude = -84.570353
         val homeLatLng = LatLng(latitude, longitude)
-        val zoomLevel = 15f
+        val zoomLevel = 4f
 
-        currentLocation_button
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
 
-        enableMyLocation()
         Log.d("LOG_X", enableMyLocation().toString())
 
         val overlaySize = 100f
@@ -83,9 +82,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         for (i in spots.indices){
             map.addMarker(
                 MarkerOptions()
-                    .position(LatLng(spotList[i].spotCoord, spotList[i].favoriteLongitude))
-                    .title(spotList[i].favoriteName)
-                    .snippet(spotList[i].toString())
+                    .position(LatLng(spots[i].spotLatitude, spots[i].spotLongitude))
+                    .title(spots[i].spotName)
+                    .snippet(spots[i].toString())
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
             )
         }
