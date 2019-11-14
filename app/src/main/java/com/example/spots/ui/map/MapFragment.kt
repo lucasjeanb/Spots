@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.example.spots.R
 import com.example.spots.database.Spot
+import com.example.spots.ui.myspots.MySpotsViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -31,12 +32,12 @@ import kotlinx.android.synthetic.main.fragment_add_location.*
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
-    val viewModel: MapViewModel by lazy {
-        ViewModelProvider(requireActivity(),
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application)).get(MapViewModel::class.java)
-    }
+    lateinit var viewModel: MapViewModel
     private lateinit var map: GoogleMap
     private val REQUEST_LOCATION_PERMISSION = 1
+    var latitude: Double = 0.0
+    var longitude: Double = 0.0
+
 
 
     override fun onCreateView(
@@ -47,9 +48,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
 
         val root = inflater.inflate(R.layout.fragment_map, container, false)
+        return root
+    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        return root
+
+        viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
+
+
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -58,20 +66,12 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         map.mapType = GoogleMap.MAP_TYPE_NORMAL
         enableMyLocation()
 
-
-        val latitude = 33.912670
-        val longitude = -84.570353
-        val homeLatLng = LatLng(latitude, longitude)
-        val zoomLevel = 4f
-
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
-
-        Log.d("LOG_X", enableMyLocation().toString())
+        startLocationUpdate()
 
         val overlaySize = 100f
         val androidOverlay = GroundOverlayOptions()
             .image(BitmapDescriptorFactory.fromResource(R.drawable.ic_home))
-            .position(homeLatLng, overlaySize)
+            .position(LatLng(latitude, longitude), overlaySize)
         map.addGroundOverlay(androidOverlay)
 
         viewModel.getSpots()?.observe(this, Observer<List<Spot>> { this.addMarker(it) })
@@ -88,6 +88,17 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
             )
         }
+    }
+
+    private fun startLocationUpdate() {
+        viewModel.getLocationData().observe(this, Observer {
+            longitude = it.longitude
+            latitude = it.latitude
+
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude), 4f))
+            map.animateCamera(CameraUpdateFactory.zoomTo(11f))
+        })
+
     }
 
     private fun enableMyLocation() {

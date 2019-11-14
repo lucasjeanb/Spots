@@ -71,7 +71,7 @@ class SelectLocationFragment : Fragment(), OnMapReadyCallback {
 
         map.mapType = GoogleMap.MAP_TYPE_NORMAL
 
-        setMapLongClick(map)
+        setMapClick(map)
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude), 4f))
         map.animateCamera(CameraUpdateFactory.zoomTo(11f))
 
@@ -84,7 +84,7 @@ class SelectLocationFragment : Fragment(), OnMapReadyCallback {
                 latitude = it.latitude
             })
     }
-    private fun setMapLongClick(map:GoogleMap) {
+    private fun setMapClick(map:GoogleMap) {
         map.setOnMapClickListener { latLng ->
             selectLatitude = latLng.latitude
             selectLongitude = latLng.longitude
