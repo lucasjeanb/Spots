@@ -18,7 +18,7 @@ fun Activity.makeStatusBarTransparent() {
             } else {
                 decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             }
-            statusBarColor = Color.TRANSPARENT
+            statusBarColor = Color.parseColor("#25000000")
         }
     }
 }

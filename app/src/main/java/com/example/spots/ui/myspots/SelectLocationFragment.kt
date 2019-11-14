@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RelativeLayout
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -76,6 +77,9 @@ class SelectLocationFragment : Fragment(), OnMapReadyCallback {
         map.animateCamera(CameraUpdateFactory.zoomTo(11f))
 
         map.setMyLocationEnabled(true)
+
+        map.setPadding(0,80,30,0)
+
     }
 
     private fun startLocationUpdate() {

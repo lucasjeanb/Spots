@@ -73,6 +73,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             .image(BitmapDescriptorFactory.fromResource(R.drawable.ic_home))
             .position(LatLng(latitude, longitude), overlaySize)
         map.addGroundOverlay(androidOverlay)
+        map.setPadding(0,80,30,0)
+
 
         viewModel.getSpots()?.observe(this, Observer<List<Spot>> { this.addMarker(it) })
 
