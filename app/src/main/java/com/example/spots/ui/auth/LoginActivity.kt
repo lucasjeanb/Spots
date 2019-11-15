@@ -1,19 +1,25 @@
 package com.example.spots.ui.auth
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Patterns
 import android.view.View
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.spots.R
 import com.example.spots.util.login
 import com.example.spots.util.toast
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.fragment_map.*
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var mAuth: FirebaseAuth
+    private val REQUEST_LOCATION_PERMISSION = 1
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +61,9 @@ class LoginActivity : AppCompatActivity() {
         text_view_forget_password.setOnClickListener {
             startActivity(Intent(this@LoginActivity, ResetPasswordActivity::class.java))
         }
+
+        enableMyLocation()
+
     }
 
     private fun loginUser(email: String, password: String) {
@@ -79,4 +88,34 @@ class LoginActivity : AppCompatActivity() {
             login()
         }
     }
+    private fun enableMyLocation() {
+        if (isPermissionGranted()){
+            return
+        }
+        else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_LOCATION_PERMISSION
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.size > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED))
+                enableMyLocation()
+        }
+    }
+
+    private fun isPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED
+    }
+
 }
