@@ -29,6 +29,7 @@ import com.google.android.gms.maps.model.GroundOverlayOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.fragment_add_location.*
+import kotlinx.android.synthetic.main.fragment_map.*
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
@@ -57,7 +58,13 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
 
-
+        profile_button.setOnClickListener {
+            var profileFragment = ProfileFragment()
+            fragmentManager?.beginTransaction()
+                ?.add(R.id.profile_framelayout, profileFragment)
+                ?.addToBackStack(null)
+                ?.commit()
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
