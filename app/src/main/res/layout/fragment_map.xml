@@ -44,7 +44,7 @@
     android:textAlignment = "center"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent"
-        android:background="@drawable/ic_boy"
+        android:background="@drawable/location_circle"
         android:elevation="4dp"
     android:layout_marginTop="42dp"
     android:layout_marginStart="16dp"

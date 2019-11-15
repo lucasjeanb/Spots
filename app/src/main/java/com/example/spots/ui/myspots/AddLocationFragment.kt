@@ -15,9 +15,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spots.R
 import com.example.spots.adapter.MySpotsAdapter
 import com.example.spots.database.Spot
+import com.example.spots.util.toast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationServices
+import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.fragment_add_location.*
 import kotlinx.android.synthetic.main.fragment_myspots.*
 
@@ -74,14 +76,25 @@ class AddLocationFragment : Fragment() {
                 ?.add(R.id.selectLocation_framelayout, selectLocationFragment)
                 ?.addToBackStack(null)
                 ?.commit()
+            locationSelect_textview.text =  "Location on Map Selected"
+
         }
 
         currentLocation_button.setOnClickListener {
-            locationSelect_textview.text =  "$latitude, $longitude"
+            val currentLocation = "$latitude, $longitude"
+            locationSelect_textview.text =  "Current Location Selected"
+            requireContext().toast("Current Location Selected")
+
         }
 
         confirmLocation_button.setOnClickListener {
-            val spotName = locationName_edittext.text.toString()
+            val spotName = locationName_edittext.text.toString().trim()
+
+            if (spotName.isEmpty()) {
+                locationName_edittext.error = "Location Name Required"
+                locationName_edittext.requestFocus()
+                return@setOnClickListener
+            }
             val newSpot = Spot(spotName, latitude, longitude)
             homeViewModel.setSpot(newSpot)
             fragmentManager?.popBackStack()

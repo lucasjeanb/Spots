@@ -13,6 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 
 import com.example.spots.R
+import com.example.spots.util.toast
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -61,6 +62,8 @@ class SelectLocationFragment : Fragment(), OnMapReadyCallback {
                 homeViewModel.latitudeViewModel.value = selectLatitude
                 homeViewModel.longitudeViewModel.value = selectLongitude
                 Log.d("LOG_X", "$selectLatitude, $selectLongitude")
+                requireContext().toast("Location on Map Selected")
+
                 fragmentManager?.popBackStack()
             }
         }

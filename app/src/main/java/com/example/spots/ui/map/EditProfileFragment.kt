@@ -114,6 +114,7 @@ class EditProfileFragment : Fragment() {
 
         }
 
+        /*
         text_phone.setOnClickListener {
             val action = ProfileFragmentDirections.actionVerifyPhone()
             Navigation.findNavController(it).navigate(action)
@@ -128,6 +129,8 @@ class EditProfileFragment : Fragment() {
             val action = ProfileFragmentDirections.actionUpdatePassword()
             Navigation.findNavController(it).navigate(action)
         }
+
+         */
     }
 
     private fun takePictureIntent() {

@@ -6,8 +6,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import com.example.spots.R
-import kotlinx.android.synthetic.main.fragment_map.*
+import com.example.spots.util.logout
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.fragment_profile.*
 
 /**
@@ -32,6 +34,19 @@ class ProfileFragment : Fragment() {
                 ?.add(R.id.editProfile_framelayout, editProfileFragment)
                 ?.addToBackStack(null)
                 ?.commit()
+        }
+
+        signout_button.setOnClickListener {
+            AlertDialog.Builder(requireContext()).apply {
+                setTitle("Are you sure?")
+                setPositiveButton("Yes") { _, _ ->
+
+                    FirebaseAuth.getInstance().signOut()
+                   requireContext().logout()
+                }
+                setNegativeButton("Cancel") { _, _ ->
+                }
+            }.create().show()
         }
     }
 

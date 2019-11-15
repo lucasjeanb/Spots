@@ -22,9 +22,8 @@
             android:layout_below="@+id/login_title"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp"
-            android:background="@drawable/user_profile_image_background"
-            android:elevation="4dp"
-            android:src="@drawable/ic_boy"/>
+            android:background="@drawable/location_circle"
+            android:elevation="4dp"/>
 
         <Button
             android:id="@+id/editprofile_button"

@@ -3,7 +3,7 @@ package com.example.spots.util
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
-import com.example.spots.LoginActivity
+import com.example.spots.ui.auth.LoginActivity
 import com.example.spots.HomeActivity
 
 fun Context.toast(message: String) =
