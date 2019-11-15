@@ -68,11 +68,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         startLocationUpdate()
 
-        val overlaySize = 100f
-        val androidOverlay = GroundOverlayOptions()
-            .image(BitmapDescriptorFactory.fromResource(R.drawable.ic_home))
-            .position(LatLng(latitude, longitude), overlaySize)
-        map.addGroundOverlay(androidOverlay)
         map.setPadding(0,80,30,0)
 
 
