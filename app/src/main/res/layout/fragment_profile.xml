@@ -54,6 +54,8 @@
                         android:layout_below="@id/image_view"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="5dp"
+                        android:inputType="text"
+                        android:imeOptions="actionSearch"
 
                         android:enabled="true"
                         android:hint="Enter Name"
