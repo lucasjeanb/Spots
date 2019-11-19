@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.spots.R
 import com.example.spots.database.model.ContentDTO
 import com.example.spots.util.logout
@@ -45,6 +47,7 @@ import java.util.*
  */
 class ProfileFragment : Fragment() {
 
+    var fragmentView : View? = null
     var PICK_IMAGE_FROM_ALBUM = 0
     lateinit var storage : FirebaseStorage
     var originalPhotoUri: Uri? = null
@@ -52,6 +55,9 @@ class ProfileFragment : Fragment() {
     lateinit var bitmapPhoto: Bitmap
     var auth : FirebaseAuth? = null
     var firestore : FirebaseFirestore? = null
+    var uid: String? = null
+    var PICK_PROFILE_FROM_ALBUM = 10
+
 
 
     private val DEFAULT_IMAGE_URL = "https://picsum.photos/200"
@@ -64,16 +70,30 @@ class ProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        fragmentView = LayoutInflater.from(activity).inflate(R.layout.fragment_profile, container, false)
+        storage = FirebaseStorage.getInstance()
+        auth = FirebaseAuth.getInstance()
+        firestore = FirebaseFirestore.getInstance()
+
+        uid = FirebaseAuth.getInstance().currentUser?.uid
+        contentUpload()
+
+        getProfileImage(uid)
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false)
+        return fragmentView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         currentUser?.let { user ->
+            /*
             Glide.with(this)
                 .load(user.photoUrl)
                 .into(image_view)
+
+             */
             edit_text_name.setText(user.displayName)
             text_email.text = user.email
 
@@ -83,9 +103,6 @@ class ProfileFragment : Fragment() {
                 text_not_verified.visibility = View.VISIBLE
             }
         }
-        storage = FirebaseStorage.getInstance()
-        auth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
 
         signout_button.setOnClickListener {
             AlertDialog.Builder(requireContext()).apply {
@@ -108,12 +125,20 @@ class ProfileFragment : Fragment() {
 
             var photoPickerIntent = Intent(Intent.ACTION_PICK)
             photoPickerIntent.type = "image/*"
-            startActivityForResult(photoPickerIntent,PICK_IMAGE_FROM_ALBUM)
+            startActivityForResult(photoPickerIntent,PICK_PROFILE_FROM_ALBUM)
         }
 
         button_save.setOnClickListener {
-            contentUpload()
 
+            progressbar.visibility = View.VISIBLE
+
+            //changePicture()
+            context?.toast("Profile Updated")
+
+            progressbar.visibility = View.INVISIBLE
+
+
+            /*
             var photo = when {
                 compressedPhotoUri != null -> compressedPhotoUri
                 currentUser?.photoUrl == null -> Uri.parse(DEFAULT_IMAGE_URL)
@@ -133,8 +158,7 @@ class ProfileFragment : Fragment() {
                 .setPhotoUri(photo)
                 .build()
 
-            progressbar.visibility = View.VISIBLE
-/*
+
             currentUser?.updateProfile(updates)
                 ?.addOnCompleteListener { task ->
                     progressbar.visibility = View.INVISIBLE
@@ -143,9 +167,13 @@ class ProfileFragment : Fragment() {
                     } else {
                         context?.toast(task.exception?.message!!)
                     }
+
+
                 }
 
- */
+             */
+
+
         }
 
 
@@ -162,6 +190,32 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    fun changePicture(){
+        var tsDoc = firestore?.collection("images")?.document(uid!!)
+        firestore?.runTransaction { transaction ->
+
+
+            var contentDTO = transaction.get(tsDoc!!).toObject(ContentDTO::class.java)
+
+                contentDTO?.imageUrl = compressedPhotoUri.toString()
+                contentDTO?.favoriteCount = 1
+
+            if(contentDTO!!.favorites.containsKey(uid)){
+                //When the button is clicked
+                contentDTO?.favoriteCount = contentDTO?.favoriteCount - 1
+                contentDTO?.favorites.remove(uid)
+            }else{
+                //When the button is not clicked
+                contentDTO?.favoriteCount = contentDTO?.favoriteCount + 1
+                contentDTO?.favorites[uid!!] = true
+            }
+
+            transaction.set(tsDoc, contentDTO)
+
+        }
+
+    }
+
     fun contentUpload() {
         //Make filename
 
@@ -175,7 +229,7 @@ class ProfileFragment : Fragment() {
             var contentDTO = ContentDTO()
 
             //Insert downloadUrl of image
-            contentDTO.imageUrl = compressedPhotoUri.toString()
+            contentDTO.imageUrl = null
 
             //Insert uid of user
             contentDTO.uid = auth?.currentUser?.uid
@@ -184,14 +238,14 @@ class ProfileFragment : Fragment() {
             contentDTO.userId = auth?.currentUser?.email
 
             //Insert explain of content
-            contentDTO.explain = edit_text_name.text.toString()
+            contentDTO.explain = null
 
             //Insert timestamp
             contentDTO.timestamp = System.currentTimeMillis()
 
             firestore?.collection("images")?.document()?.set(contentDTO)
 
-            fragmentManager?.popBackStack()
+            //fragmentManager?.popBackStack()
 
     }
 
@@ -205,20 +259,15 @@ class ProfileFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(requestCode == PICK_IMAGE_FROM_ALBUM){
-            if(resultCode == Activity.RESULT_OK){
-                //This is path to the selected image
-                originalPhotoUri = data?.data
-                bitmapPhoto = MediaStore.Images.Media.getBitmap(
-                        requireActivity().contentResolver, originalPhotoUri)
-                uploadImageAndSaveUri(bitmapPhoto)
-                image_view.setImageURI(compressedPhotoUri)
-
-
-            }else{
-                //Exit the addPhotoActivity if you leave the album without selecting it
-                requireActivity().finish()
-
+        if(requestCode == PICK_PROFILE_FROM_ALBUM && resultCode == Activity.RESULT_OK){
+            var imageUri = data?.data
+            var storageRef = FirebaseStorage.getInstance().reference.child("userProfileImages").child(uid!!)
+            storageRef.putFile(imageUri!!).continueWithTask { task: Task<UploadTask.TaskSnapshot> ->
+                return@continueWithTask storageRef.downloadUrl
+            }.addOnSuccessListener { uri ->
+                var map = HashMap<String,Any>()
+                map["image"] = uri.toString()
+                FirebaseFirestore.getInstance().collection("profileImages").document(uid!!).set(map)
             }
         }
     }
@@ -255,4 +304,13 @@ class ProfileFragment : Fragment() {
 
     }
 
+    fun getProfileImage(uid: String?){
+        firestore?.collection("profileImages")?.document(uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+            if(documentSnapshot == null) return@addSnapshotListener
+            if(documentSnapshot.data != null){
+                var url = documentSnapshot?.data!!["image"]
+                Glide.with(activity!!).load(url).apply(RequestOptions().circleCrop()).into(image_view!!)
+            }
+        }
+    }
 }
