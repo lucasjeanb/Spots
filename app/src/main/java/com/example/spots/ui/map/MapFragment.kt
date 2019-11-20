@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.example.spots.R
 import com.example.spots.database.Spot
+import com.example.spots.database.model.SpotDTO
 import com.example.spots.ui.myspots.MySpotsViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -28,6 +29,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.GroundOverlayOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.fragment_add_location.*
 import kotlinx.android.synthetic.main.fragment_map.*
 
@@ -77,21 +79,38 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         map.setPadding(0,80,30,0)
 
-
-        viewModel.getSpots()?.observe(this, Observer<List<Spot>> { this.addMarker(it) })
+        addMarker()
+        //viewModel.getSpots()?.observe(this, Observer<List<Spot>> { this.addMarker(it) })
 
         }
 
-    private fun addMarker(spots: List<Spot>){
-        for (i in spots.indices){
-            map.addMarker(
-                MarkerOptions()
-                    .position(LatLng(spots[i].spotLatitude, spots[i].spotLongitude))
-                    .title(spots[i].spotName)
-                    .snippet(spots[i].toString())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
-            )
-        }
+    private fun addMarker(){
+
+        var spotDTOs: ArrayList<SpotDTO> = arrayListOf()
+        var contentUidList: ArrayList<String> = arrayListOf()
+        var firestore = FirebaseFirestore.getInstance()
+
+
+        firestore?.collection("spots")
+                ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    spotDTOs.clear()
+                    contentUidList.clear()
+                    //Sometimes, This code return null of querySnapshot when it signout
+                    if (querySnapshot == null) return@addSnapshotListener
+
+                    for (snapshot in querySnapshot!!.documents) {
+                        var item = snapshot.toObject(SpotDTO::class.java)
+                        spotDTOs.add(item!!)
+                        contentUidList.add(snapshot.id)
+                        map.addMarker(
+                            MarkerOptions()
+                                .position(LatLng(item.latitude!!, item.longitude!!))
+                                .title(item.message)
+                                .snippet("${item.latitude!!}, ${item.longitude!!}")
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
+                        )
+                    }
+                }
     }
 
     private fun startLocationUpdate() {
