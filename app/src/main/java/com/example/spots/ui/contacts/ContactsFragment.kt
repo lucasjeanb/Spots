@@ -2,6 +2,7 @@ package com.example.spots.ui.contacts
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,7 +43,7 @@ class ContactsFragment : Fragment() {
         init {
 
 
-            firestore?.collection("images")?.orderBy("timestamp")?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+            firestore?.collection("userSpot")?.orderBy("timestamp")?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                 contentDTOs.clear()
                 contentUidList.clear()
                 //Sometimes, This code return null of querySnapshot when it signout
@@ -72,19 +73,16 @@ class ContactsFragment : Fragment() {
             var viewholder = (p0 as CustomViewHolder).itemView
 
             //UserId
-            viewholder.contactName_textview.text = contentDTOs!![p1].userId
+            viewholder.contactName_textview.text = contentDTOs[p1].userId
 
             //Image
-            firestore?.collection("profileImages")?.document(uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
-                if(documentSnapshot == null) return@addSnapshotListener
-                if(documentSnapshot.data != null){
-                    var url = documentSnapshot?.data!!["image"]
-                    Glide.with(p0.itemView.context).load(url).into(viewholder.contact_imageview)
-                }
-            }
+            Glide.with(p0.itemView.context).load(contentDTOs[p1].imageUrl).apply(RequestOptions().circleCrop()).into(viewholder.contact_imageview)
+            Log.d("LOG_X", contentDTOs[p1].imageUrl?:"" )
+
+
 
             //Explain of content
-            viewholder.coord_textview.text = contentDTOs!![p1].timestamp.toString()
+            viewholder.coord_textview.text = contentDTOs[p1].timestamp.toString()
 
             //likes
             //viewholder.detailviewitem_favoritecounter_textview.text = "Likes " + contentDTOs!![p1].favoriteCount

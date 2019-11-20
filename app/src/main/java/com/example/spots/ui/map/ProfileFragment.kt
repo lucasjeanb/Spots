@@ -56,6 +56,7 @@ class ProfileFragment : Fragment() {
     var auth : FirebaseAuth? = null
     var firestore : FirebaseFirestore? = null
     var uid: String? = null
+    var imageUrlStart : String? = null
     var PICK_PROFILE_FROM_ALBUM = 10
 
 
@@ -76,9 +77,10 @@ class ProfileFragment : Fragment() {
         firestore = FirebaseFirestore.getInstance()
 
         uid = FirebaseAuth.getInstance().currentUser?.uid
-        contentUpload()
-
         getProfileImage(uid)
+
+
+
 
         // Inflate the layout for this fragment
         return fragmentView
@@ -191,7 +193,7 @@ class ProfileFragment : Fragment() {
     }
 
     fun changePicture(){
-        var tsDoc = firestore?.collection("images")?.document(uid!!)
+        var tsDoc = firestore?.collection("userSpot")?.document(uid!!)
         firestore?.runTransaction { transaction ->
 
 
@@ -216,7 +218,7 @@ class ProfileFragment : Fragment() {
 
     }
 
-    fun contentUpload() {
+    fun contentUpload(uid: String?) {
         //Make filename
 
         var timestamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
@@ -228,8 +230,6 @@ class ProfileFragment : Fragment() {
 
             var contentDTO = ContentDTO()
 
-            //Insert downloadUrl of image
-            contentDTO.imageUrl = null
 
             //Insert uid of user
             contentDTO.uid = auth?.currentUser?.uid
@@ -240,10 +240,15 @@ class ProfileFragment : Fragment() {
             //Insert explain of content
             contentDTO.explain = null
 
+            //Insert downloadUrl of image
+            contentDTO.imageUrl = imageUrlStart
+
+
+
             //Insert timestamp
             contentDTO.timestamp = System.currentTimeMillis()
 
-            firestore?.collection("images")?.document()?.set(contentDTO)
+            firestore?.collection("userSpot")?.document(uid!!)?.set(contentDTO)
 
             //fragmentManager?.popBackStack()
 
@@ -260,6 +265,7 @@ class ProfileFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == PICK_PROFILE_FROM_ALBUM && resultCode == Activity.RESULT_OK){
+            var contentDTO = ContentDTO()
             var imageUri = data?.data
             var storageRef = FirebaseStorage.getInstance().reference.child("userProfileImages").child(uid!!)
             storageRef.putFile(imageUri!!).continueWithTask { task: Task<UploadTask.TaskSnapshot> ->
@@ -267,8 +273,12 @@ class ProfileFragment : Fragment() {
             }.addOnSuccessListener { uri ->
                 var map = HashMap<String,Any>()
                 map["image"] = uri.toString()
+                //Insert downloadUrl of image
+                contentDTO.imageUrl = uri.toString()
+                firestore?.collection("userSpot")?.document(uid!!)?.set(contentDTO)
                 FirebaseFirestore.getInstance().collection("profileImages").document(uid!!).set(map)
             }
+
         }
     }
 
@@ -306,11 +316,19 @@ class ProfileFragment : Fragment() {
 
     fun getProfileImage(uid: String?){
         firestore?.collection("profileImages")?.document(uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
-            if(documentSnapshot == null) return@addSnapshotListener
-            if(documentSnapshot.data != null){
+
+            if(documentSnapshot?.data != null){
                 var url = documentSnapshot?.data!!["image"]
+                imageUrlStart = url.toString()
                 Glide.with(activity!!).load(url).apply(RequestOptions().circleCrop()).into(image_view!!)
             }
+            else{
+                imageUrlStart = DEFAULT_IMAGE_URL
+                Glide.with(activity!!).load(imageUrlStart).apply(RequestOptions().circleCrop()).into(image_view!!)
+            }
+            contentUpload(uid)
+
         }
+
     }
 }

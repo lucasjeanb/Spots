@@ -35,6 +35,7 @@
             android:textSize="24dp"
             android:textStyle="bold"
             android:layout_marginTop="15dp"
+            android:layout_marginStart="16dp"
             app:layout_constraintBottom_toTopOf="@+id/coord_textview"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/contact_imageview"
