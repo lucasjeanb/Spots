@@ -77,9 +77,6 @@ class ContactsFragment : Fragment() {
 
             //Image
             Glide.with(p0.itemView.context).load(contentDTOs[p1].imageUrl).apply(RequestOptions().circleCrop()).into(viewholder.contact_imageview)
-            Log.d("LOG_X", contentDTOs[p1].imageUrl?:"" )
-
-
 
             //Explain of content
             viewholder.coord_textview.text = contentDTOs[p1].timestamp.toString()

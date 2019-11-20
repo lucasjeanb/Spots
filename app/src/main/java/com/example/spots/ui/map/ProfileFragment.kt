@@ -237,12 +237,9 @@ class ProfileFragment : Fragment() {
             //Insert userId
             contentDTO.userId = auth?.currentUser?.email
 
-            //Insert explain of content
-            contentDTO.explain = null
 
             //Insert downloadUrl of image
             contentDTO.imageUrl = imageUrlStart
-
 
 
             //Insert timestamp
@@ -325,6 +322,9 @@ class ProfileFragment : Fragment() {
             else{
                 imageUrlStart = DEFAULT_IMAGE_URL
                 Glide.with(activity!!).load(imageUrlStart).apply(RequestOptions().circleCrop()).into(image_view!!)
+                var map = HashMap<String,Any>()
+                map["image"] = imageUrlStart.toString()
+                FirebaseFirestore.getInstance().collection("profileImages").document(uid!!).set(map)
             }
             contentUpload(uid)
 
