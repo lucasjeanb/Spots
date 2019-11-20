@@ -193,7 +193,7 @@ class ProfileFragment : Fragment() {
     }
 
     fun changePicture(){
-        var tsDoc = firestore?.collection("userSpot")?.document(uid!!)
+        var tsDoc = firestore?.collection("userInfo")?.document(uid!!)
         firestore?.runTransaction { transaction ->
 
 
@@ -245,7 +245,7 @@ class ProfileFragment : Fragment() {
             //Insert timestamp
             contentDTO.timestamp = System.currentTimeMillis()
 
-            firestore?.collection("userSpot")?.document(uid!!)?.set(contentDTO)
+            firestore?.collection("userInfo")?.document(uid!!)?.set(contentDTO)
 
             //fragmentManager?.popBackStack()
 
@@ -272,7 +272,7 @@ class ProfileFragment : Fragment() {
                 map["image"] = uri.toString()
                 //Insert downloadUrl of image
                 contentDTO.imageUrl = uri.toString()
-                firestore?.collection("userSpot")?.document(uid!!)?.set(contentDTO)
+                firestore?.collection("userInfo")?.document(uid!!)?.set(contentDTO)
                 FirebaseFirestore.getInstance().collection("profileImages").document(uid!!).set(map)
             }
 

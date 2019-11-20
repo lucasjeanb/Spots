@@ -15,10 +15,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spots.R
 import com.example.spots.adapter.MySpotsAdapter
 import com.example.spots.database.Spot
+import com.example.spots.database.model.SpotDTO
 import com.example.spots.util.toast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.fragment_add_location.*
 import kotlinx.android.synthetic.main.fragment_myspots.*
@@ -96,6 +99,7 @@ class AddLocationFragment : Fragment() {
                 return@setOnClickListener
             }
             val newSpot = Spot(spotName, latitude, longitude)
+            spotOnDB(latitude, longitude, spotName)
             homeViewModel.setSpot(newSpot)
             fragmentManager?.popBackStack()
         }
@@ -106,6 +110,17 @@ class AddLocationFragment : Fragment() {
             longitude = it.longitude
             latitude = it.latitude
         })
+    }
+
+    fun spotOnDB(lat: Double, long: Double, message: String){
+        var spotDTO = SpotDTO()
+        spotDTO.userId = FirebaseAuth.getInstance().currentUser?.email
+        spotDTO.uid = FirebaseAuth.getInstance().currentUser?.uid
+        spotDTO.message = message
+        spotDTO.latitude = lat
+        spotDTO.longitude = long
+        spotDTO.timestamp = System.currentTimeMillis()
+        FirebaseFirestore.getInstance().collection("spots").document().set(spotDTO)
     }
 
 

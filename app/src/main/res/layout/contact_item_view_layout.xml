@@ -27,6 +27,16 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
 
+        <ImageView
+            android:id="@+id/friend_imageview"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/contactName_textview"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/ic_add"
+            android:layout_margin="24dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"/>
+
         <TextView
             android:id="@+id/contactName_textview"
             android:layout_width="0dp"
@@ -37,7 +47,7 @@
             android:layout_marginTop="15dp"
             android:layout_marginStart="16dp"
             app:layout_constraintBottom_toTopOf="@+id/coord_textview"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/friend_imageview"
             app:layout_constraintStart_toEndOf="@+id/contact_imageview"
             app:layout_constraintTop_toTopOf="parent"
             />

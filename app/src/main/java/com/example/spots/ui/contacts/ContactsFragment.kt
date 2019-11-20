@@ -43,7 +43,7 @@ class ContactsFragment : Fragment() {
         init {
 
 
-            firestore?.collection("userSpot")?.orderBy("timestamp")?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+            firestore?.collection("userInfo")?.orderBy("timestamp")?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                 contentDTOs.clear()
                 contentUidList.clear()
                 //Sometimes, This code return null of querySnapshot when it signout
@@ -81,94 +81,30 @@ class ContactsFragment : Fragment() {
             //Explain of content
             viewholder.coord_textview.text = contentDTOs[p1].timestamp.toString()
 
-            //likes
-            //viewholder.detailviewitem_favoritecounter_textview.text = "Likes " + contentDTOs!![p1].favoriteCount
-
-            //This code is when the button is clicked
-            /*
-            viewholder.detailviewitem_favorite_imageview.setOnClickListener {
+            viewholder.friend_imageview.setOnClickListener {
                 favoriteEvent(p1)
             }
 
-
-
-            //This code is when the page is loaded
-
             if(contentDTOs!![p1].favorites.containsKey(uid)){
-                //This is like status
-                viewholder.detailviewitem_favorite_imageview.setImageResource(R.drawable.ic_favorite)
+                viewholder.friend_imageview.setImageResource(R.drawable.ic_remove)
 
             }else{
-                //This is unlike status
-                viewholder.detailviewitem_favorite_imageview.setImageResource(R.drawable.ic_favorite_border)
+                viewholder.friend_imageview.setImageResource(R.drawable.ic_add)
             }
-
-            //This code is when the profile image is clicked
-
-            viewholder.detailviewitem_profile_image.setOnClickListener {
-                var fragment = UserFragment()
-                var bundle = Bundle()
-                bundle.putString("destinationUid",contentDTOs[p1].uid)
-                bundle.putString("userId",contentDTOs[p1].userId)
-                fragment.arguments = bundle
-                activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.main_content,fragment)?.commit()
-            }
-            viewholder.detailviewitem_comment_imageview.setOnClickListener { v ->
-                var intent = Intent(v.context,CommentActivity::class.java)
-                intent.putExtra("contentUid",contentUidList[p1])
-                intent.putExtra("destinationUid",contentDTOs[p1].uid)
-                startActivity(intent)
-            }
-
-             */
         }
-
-             /*
         fun favoriteEvent(position : Int){
-            var tsDoc = firestore?.collection("images")?.document(contentUidList[position])
+            var tsDoc = firestore?.collection("userInfo")?.document(contentUidList[position])
             firestore?.runTransaction { transaction ->
 
 
                 var contentDTO = transaction.get(tsDoc!!).toObject(ContentDTO::class.java)
 
                 if(contentDTO!!.favorites.containsKey(uid)){
-                    //When the button is clicked
-                    contentDTO?.favoriteCount = contentDTO?.favoriteCount - 1
                     contentDTO?.favorites.remove(uid)
                 }else{
-                    //When the button is not clicked
-                    contentDTO?.favoriteCount = contentDTO?.favoriteCount + 1
                     contentDTO?.favorites[uid!!] = true
-                    favoriteAlarm(contentDTOs[position].uid!!)
-
                 }
                 transaction.set(tsDoc,contentDTO)
-            }
-        }
-
-        fun favoriteAlarm(destinationUid : String){
-            var alarmDTO = AlarmDTO()
-            alarmDTO.destinationUid = destinationUid
-            alarmDTO.userId = FirebaseAuth.getInstance().currentUser?.email
-            alarmDTO.uid = FirebaseAuth.getInstance().currentUser?.uid
-            alarmDTO.kind = 0
-            alarmDTO.timestamp = System.currentTimeMillis()
-            FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO)
-
-            var message = FirebaseAuth.getInstance()?.currentUser?.email + getString(R.string.alarm_favorite)
-            FcmPush.instance.sendMessage(destinationUid,"Howlstagram",message)
-        }
-
-         */
-
-    }
-
-    fun getProfileImage(uid: String?, imageView: ImageView){
-        firestore?.collection("profileImages")?.document(uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
-            if(documentSnapshot == null) return@addSnapshotListener
-            if(documentSnapshot.data != null){
-                var url = documentSnapshot?.data!!["image"]
-                Glide.with(activity!!).load(url).apply(RequestOptions().circleCrop()).into(imageView)
             }
         }
     }
