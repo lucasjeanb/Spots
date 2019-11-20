@@ -28,7 +28,7 @@
     tools:context=".ui.map.MapFragment" />
 
     <Button
-    android:id = "@+id/profile_button"
+    android:id ="@+id/profile_button"
     android:textSize = "18sp"
     android:textAlignment = "center"
     app:layout_constraintStart_toStartOf="parent"
@@ -40,5 +40,19 @@
     android:layout_width = "30dp"
     android:textColor = "#000"
     android:layout_height = "30dp" />
+
+    <Button
+        android:id = "@+id/bottomSheet_button"
+        android:textSize = "18sp"
+        android:textAlignment = "center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/ic_arrow"
+        android:elevation="4dp"
+        android:layout_margin="16dp"
+        android:layout_width = "30dp"
+        android:textColor = "#000"
+        android:layout_height = "30dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
