@@ -12,6 +12,8 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.spots.util.makeStatusBarTransparent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_map.*
 
 class HomeActivity : AppCompatActivity() {
 
@@ -19,7 +21,6 @@ class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        initComponent()
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
         val navController = findNavController(R.id.nav_host_fragment)
@@ -41,25 +42,4 @@ class HomeActivity : AppCompatActivity() {
             insets.consumeSystemWindowInsets()
         }
     }
-
-    private fun initComponent() {
-        // get the bottom sheet view
-        val llBottomSheet = findViewById(R.id.bottom_sheet) as LinearLayout
-        // init the bottom sheet behavior
-       var  bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet)
-        // change the state of the bottom sheet
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
-        // set callback for changes
-        bottomSheetBehavior.setBottomSheetCallback(object:BottomSheetBehavior.BottomSheetCallback() {
-            override fun onSlide(p0: View, p1: Float) {
-            }
-
-            override fun onStateChanged(p0: View, p1: Int) {
-            }
-        })
-
-    }
-
-
-
 }

@@ -14,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.core.app.ActivityCompat
@@ -22,9 +23,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.spots.R
 import com.example.spots.database.Spot
+import com.example.spots.database.model.ContentDTO
 import com.example.spots.database.model.SpotDTO
 import com.example.spots.ui.myspots.MySpotsViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -37,7 +42,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.GroundOverlayOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.android.synthetic.main.contact_item_view_layout.view.*
+import kotlinx.android.synthetic.main.fragment_contacts.view.*
 import kotlinx.android.synthetic.main.fragment_map.*
 
 class MapFragment : Fragment(), OnMapReadyCallback {
@@ -47,6 +56,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private val REQUEST_LOCATION_PERMISSION = 1
     var latitude: Double = 0.0
     var longitude: Double = 0.0
+    var firestore : FirebaseFirestore? = null
+    var uid : String? = null
 
 
 
@@ -56,6 +67,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         savedInstanceState: Bundle?
     ): View? {
         super.onCreate(savedInstanceState)
+        firestore = FirebaseFirestore.getInstance()
+        uid = FirebaseAuth.getInstance().currentUser?.uid
+
 
         val root = inflater.inflate(R.layout.fragment_map, container, false)
         return root
@@ -74,6 +88,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 ?.addToBackStack(null)
                 ?.commit()
         }
+        initComponent()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -121,7 +136,32 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 }
     }
 
+    private fun initComponent() {
+        // get the bottom sheet view
+        val llBottomSheet = requireActivity().findViewById(R.id.bottom_sheet) as LinearLayout
+        // init the bottom sheet behavior
+        var bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet)
 
+        llBottomSheet.contact_recyclerview.adapter = DetailViewRecyclerViewAdapter()
+        llBottomSheet.contact_recyclerview.layoutManager = LinearLayoutManager(activity)
+
+        // change the state of the bottom sheet
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
+        // set callback for changes
+        bottomSheetBehavior.setBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+            override fun onSlide(p0: View, p1: Float) {
+            }
+
+            override fun onStateChanged(p0: View, p1: Int) {
+            }
+        })
+
+        fab_directions.setOnClickListener {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED)
+
+        }
+    }
     private fun startLocationUpdate() {
         viewModel.getLocationData().observe(this, Observer {
             longitude = it.longitude
@@ -162,4 +202,79 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             this.context!!,
             Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED
     }
+
+
+    inner class DetailViewRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+        var contentDTOs : ArrayList<ContentDTO> = arrayListOf()
+        var contentUidList : ArrayList<String> = arrayListOf()
+
+        init {
+
+
+            firestore?.collection("userInfo")?.orderBy("timestamp")?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                contentDTOs.clear()
+                contentUidList.clear()
+                //Sometimes, This code return null of querySnapshot when it signout
+                if(querySnapshot == null) return@addSnapshotListener
+
+                for(snapshot in querySnapshot!!.documents){
+                    var item = snapshot.toObject(ContentDTO::class.java)
+                    contentDTOs.add(item!!)
+                    contentUidList.add(snapshot.id)
+                }
+                notifyDataSetChanged()
+            }
+        }
+
+        override fun onCreateViewHolder(p0: ViewGroup, p1: Int): RecyclerView.ViewHolder {
+            var view = LayoutInflater.from(p0.context).inflate(R.layout.contact_item_view_layout,p0,false)
+            return CustomViewHolder(view)
+        }
+
+        inner class CustomViewHolder(view: View) : RecyclerView.ViewHolder(view)
+
+        override fun getItemCount(): Int {
+            return contentDTOs.size
+        }
+
+        override fun onBindViewHolder(p0: RecyclerView.ViewHolder, p1: Int) {
+            var viewholder = (p0 as CustomViewHolder).itemView
+
+            //UserId
+            viewholder.contactName_textview.text = contentDTOs[p1].userId
+
+            //Image
+            Glide.with(p0.itemView.context).load(contentDTOs[p1].imageUrl).apply(RequestOptions().circleCrop()).into(viewholder.contact_imageview)
+
+            //Explain of content
+            viewholder.coord_textview.text = contentDTOs[p1].timestamp.toString()
+
+            viewholder.friend_imageview.setOnClickListener {
+                favoriteEvent(p1)
+            }
+
+            if(contentDTOs!![p1].favorites.containsKey(uid)){
+                viewholder.friend_imageview.setImageResource(R.drawable.ic_remove)
+
+            }else{
+                viewholder.friend_imageview.setImageResource(R.drawable.ic_add)
+            }
+        }
+        fun favoriteEvent(position : Int){
+            var tsDoc = firestore?.collection("userInfo")?.document(contentUidList[position])
+            firestore?.runTransaction { transaction ->
+
+
+                var contentDTO = transaction.get(tsDoc!!).toObject(ContentDTO::class.java)
+
+                if(contentDTO!!.favorites.containsKey(uid)){
+                    contentDTO?.favorites.remove(uid)
+                }else{
+                    contentDTO?.favorites[uid!!] = true
+                }
+                transaction.set(tsDoc,contentDTO)
+            }
+        }
+    }
+
 }
