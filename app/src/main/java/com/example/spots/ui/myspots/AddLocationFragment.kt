@@ -1,6 +1,7 @@
 package com.example.spots.ui.myspots
 
 
+import android.app.Activity
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -77,6 +79,9 @@ class AddLocationFragment : Fragment() {
             fragmentManager?.popBackStack()
         }
         selectLocation_button.setOnClickListener {
+            var imm = requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken,0)
+
             var selectLocationFragment = SelectLocationFragment()
             fragmentManager?.beginTransaction()
                 ?.add(R.id.selectLocation_framelayout, selectLocationFragment)
@@ -89,6 +94,8 @@ class AddLocationFragment : Fragment() {
         currentLocation_button.setOnClickListener {
             val currentLocation = "$latitude, $longitude"
             locationSelect_textview.text =  "Current Location Selected"
+            var imm = requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken,0)
             requireContext().toast("Current Location Selected")
 
         }
@@ -123,7 +130,7 @@ class AddLocationFragment : Fragment() {
         spotDTO.latitude = lat
         spotDTO.longitude = long
         spotDTO.timestamp = System.currentTimeMillis()
-        FirebaseFirestore.getInstance().collection("spots").document().set(spotDTO)
+        FirebaseFirestore.getInstance().collection("spots").document(spotDTO.timestamp.toString()).set(spotDTO)
     }
 
 

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.spots.R
 import com.example.spots.database.model.SpotDTO
 import com.example.spots.util.logout
+import com.example.spots.util.toast
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
@@ -104,6 +106,11 @@ class MySpotsFragment : Fragment() {
                 AlertDialog.Builder(requireContext()).apply {
                     setTitle("Are you sure you want to remove this spot?")
                     setPositiveButton("Yes") { _, _ ->
+                        firestore?.collection("spots")?.document(spotDTOs[p1].timestamp.toString())?.delete()
+                            ?.addOnSuccessListener {
+                                Toast.makeText(requireContext(), "Spot Successfully Removed", Toast.LENGTH_SHORT).show()
+                                notifyDataSetChanged()
+                            }
                     }
                     setNegativeButton("Cancel") { _, _ ->
                     }
