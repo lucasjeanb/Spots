@@ -51,8 +51,8 @@ class ProfileFragment : Fragment() {
     var uid: String? = null
     var imageUrlStart : String? = null
     var PICK_PROFILE_FROM_ALBUM = 10
-
-
+    var contentDTO = ContentDTO()
+    lateinit var imageUri: Uri
 
     private val DEFAULT_IMAGE_URL = "https://picsum.photos/200"
 
@@ -186,20 +186,17 @@ class ProfileFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == PICK_PROFILE_FROM_ALBUM && resultCode == Activity.RESULT_OK){
-            var contentDTO = ContentDTO()
-            var imageUri = data?.data
+            imageUri = data?.data!!
             var storageRef = FirebaseStorage.getInstance().reference.child("userProfileImages").child(uid!!)
             storageRef.putFile(imageUri!!).continueWithTask { task: Task<UploadTask.TaskSnapshot> ->
                 return@continueWithTask storageRef.downloadUrl
             }.addOnSuccessListener { uri ->
                 var map = HashMap<String,Any>()
                 map["image"] = uri.toString()
-                //Insert downloadUrl of image
                 contentDTO.imageUrl = uri.toString()
                 firestore?.collection("userInfo")?.document(uid!!)?.set(contentDTO)
                 FirebaseFirestore.getInstance().collection("profileImages").document(uid!!).set(map)
             }
-
         }
     }
 

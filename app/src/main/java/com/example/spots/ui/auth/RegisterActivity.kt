@@ -24,6 +24,7 @@ class RegisterActivity : AppCompatActivity() {
         button_register.setOnClickListener {
             val email = text_email.text.toString().trim()
             val password = edit_text_password.text.toString().trim()
+            val confirmpassword = edit_text_confirmpassword.text.toString().trim()
 
             if (email.isEmpty()) {
                 text_email.error = "Email Required"
@@ -39,6 +40,12 @@ class RegisterActivity : AppCompatActivity() {
 
             if (password.isEmpty() || password.length < 6) {
                 edit_text_password.error = "6 char password required"
+                edit_text_password.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (password != confirmpassword) {
+                edit_text_password.error = "Please enter the same password"
                 edit_text_password.requestFocus()
                 return@setOnClickListener
             }

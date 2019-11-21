@@ -94,10 +94,11 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="22dp"
-                    android:background="#d67601"
                     android:text="Log in"
+                    android:textColor="@android:color/white"
+                    android:background="?colorPrimary"
                     android:textAllCaps="false"
-                    android:textColor="#fff"
+                    android:layout_gravity="center_horizontal"
                     android:textSize="18sp"/>
 
                 <TextView

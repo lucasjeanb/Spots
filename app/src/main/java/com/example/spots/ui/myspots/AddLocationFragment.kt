@@ -25,6 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.fragment_add_location.*
 import kotlinx.android.synthetic.main.fragment_myspots.*
+import kotlinx.android.synthetic.main.fragment_profile.*
 
 /**
  * A simple [Fragment] subclass.
@@ -72,7 +73,9 @@ class AddLocationFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        fragmentadd_background_click.setOnClickListener{
+            fragmentManager?.popBackStack()
+        }
         selectLocation_button.setOnClickListener {
             var selectLocationFragment = SelectLocationFragment()
             fragmentManager?.beginTransaction()

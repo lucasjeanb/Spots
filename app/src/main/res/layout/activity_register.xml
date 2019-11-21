@@ -79,16 +79,34 @@
                     android:hint="Password"
                     android:inputType="textPassword"/>
 
+                <TextView
+                    android:labelFor="@id/edit_text_confirmpassword"
+                    android:text="confirm password"
+                    android:fontFamily="sans-serif-light"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <EditText
+                    android:drawablePadding="10dp"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:id="@+id/edit_text_confirmpassword"
+                    android:drawableLeft="@drawable/ic_lock"
+                    android:hint="Confirm Password"
+                    android:inputType="textPassword"/>
+
 
                 <Button
                     android:id="@+id/button_register"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="22dp"
-                    android:background="#d67601"
                     android:text="Sign Up"
+                    android:textColor="@android:color/white"
+                    android:background="?colorPrimary"
                     android:textAllCaps="false"
-                    android:textColor="#fff"
+                    android:layout_gravity="center_horizontal"
                     android:textSize="18sp"/>
 
                 <TextView

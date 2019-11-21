@@ -36,6 +36,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:textColor="@android:color/white"
+        android:background="?colorPrimary"
+        android:textAllCaps="false"
+        android:layout_gravity="center_horizontal"
+
         android:text="OK"
         android:layout_margin="16dp"
         />
