@@ -30,14 +30,7 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.UploadTask
-import kotlinx.android.synthetic.main.fragment_profile.button_save
-import kotlinx.android.synthetic.main.fragment_profile.edit_text_name
-import kotlinx.android.synthetic.main.fragment_profile.image_view
-import kotlinx.android.synthetic.main.fragment_profile.progressbar
-import kotlinx.android.synthetic.main.fragment_profile.progressbar_pic
-import kotlinx.android.synthetic.main.fragment_profile.signout_button
-import kotlinx.android.synthetic.main.fragment_profile.text_email
-import kotlinx.android.synthetic.main.fragment_profile.text_not_verified
+import kotlinx.android.synthetic.main.fragment_profile.*
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
@@ -88,7 +81,9 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        fragment_background_click.setOnClickListener{
+            fragmentManager?.popBackStack()
+        }
         currentUser?.let { user ->
             /*
             Glide.with(this)
