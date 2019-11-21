@@ -7,5 +7,6 @@ data class SpotDTO(
     var latitude : Double? = null,
     var longitude : Double? = null,
     var favorites : MutableMap<String,Boolean> = HashMap(),
+    var imageUrl : String? = null,
     var timestamp : Long? = null
 )

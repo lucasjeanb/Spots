@@ -34,14 +34,6 @@ class AddLocationFragment : Fragment() {
     private lateinit var homeViewModel: MySpotsViewModel
     var latitude: Double = 1.0
     var longitude: Double = 1.0
-    var latitudeVM: Double = 1.0
-    var longitudeVM: Double = 1.0
-
-
-    val viewModel: MySpotsViewModel by lazy {
-        ViewModelProvider(requireActivity(),
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application)).get(MySpotsViewModel::class.java)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,12 +43,9 @@ class AddLocationFragment : Fragment() {
 
         homeViewModel.latitudeViewModel.observe(this, Observer {
             latitude = homeViewModel.latitudeViewModel.value!!
-            Log.d("LOG_X", latitude.toString())
         })
         homeViewModel.longitudeViewModel.observe(this, Observer {
             longitude = homeViewModel.longitudeViewModel.value!!
-            Log.d("LOG_X", longitude.toString())
-
         })
 
     }
@@ -84,7 +73,6 @@ class AddLocationFragment : Fragment() {
         }
 
         currentLocation_button.setOnClickListener {
-            val currentLocation = "$latitude, $longitude"
             locationSelect_textview.text =  "Current Location Selected"
             requireContext().toast("Current Location Selected")
 
@@ -113,14 +101,24 @@ class AddLocationFragment : Fragment() {
     }
 
     fun spotOnDB(lat: Double, long: Double, message: String){
-        var spotDTO = SpotDTO()
-        spotDTO.userId = FirebaseAuth.getInstance().currentUser?.email
-        spotDTO.uid = FirebaseAuth.getInstance().currentUser?.uid
-        spotDTO.message = message
-        spotDTO.latitude = lat
-        spotDTO.longitude = long
-        spotDTO.timestamp = System.currentTimeMillis()
-        FirebaseFirestore.getInstance().collection("spots").document().set(spotDTO)
+        var uid = FirebaseAuth.getInstance().currentUser?.uid
+        var firestore = FirebaseFirestore.getInstance()
+        var imageUrl: String
+
+        firestore?.collection("profileImages")?.document(uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+            var url = documentSnapshot?.data!!["image"]
+            imageUrl = url.toString()
+            var spotDTO = SpotDTO()
+            spotDTO.userId = FirebaseAuth.getInstance().currentUser?.email
+            spotDTO.uid = FirebaseAuth.getInstance().currentUser?.uid
+            spotDTO.message = message
+            spotDTO.latitude = lat
+            spotDTO.longitude = long
+            spotDTO.timestamp = System.currentTimeMillis()
+            spotDTO.imageUrl = imageUrl
+            FirebaseFirestore.getInstance().collection("spots").document().set(spotDTO)
+
+        }
     }
 
 
