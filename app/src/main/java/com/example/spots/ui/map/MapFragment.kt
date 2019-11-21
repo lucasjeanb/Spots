@@ -1,18 +1,21 @@
 package com.example.spots.ui.map
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.drawable.Drawable
+import android.graphics.Canvas
 import android.location.Location
-import android.net.Uri
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.DrawableRes
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -20,8 +23,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.example.spots.R
 import com.example.spots.database.Spot
 import com.example.spots.database.model.SpotDTO
@@ -32,11 +33,12 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.GroundOverlayOptions
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.fragment_add_location.*
 import kotlinx.android.synthetic.main.fragment_map.*
-import java.net.URL
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
@@ -105,36 +107,20 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
                     for (snapshot in querySnapshot!!.documents) {
                         var item = snapshot.toObject(SpotDTO::class.java)
+                        var imageView :ImageView
                         spotDTOs.add(item!!)
-                        var imageUrl = Uri.parse(item.imageUrl)
-                        var bmp : Bitmap
                         contentUidList.add(snapshot.id)
-                        Glide.with(this)
-                            .asBitmap()
-                            .load(imageUrl)
-                            .into(object : CustomTarget<Bitmap>(){
-                                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                                    bmp = resource
-                                    map.addMarker(
-                                        MarkerOptions()
-                                            .position(LatLng(item.latitude!!, item.longitude!!))
-                                            .title(item.message)
-                                            .snippet("${item.latitude!!}, ${item.longitude!!}")
-                                            .icon(BitmapDescriptorFactory.fromBitmap(bmp))
-                                    )
-                                }
-                                override fun onLoadCleared(placeholder: Drawable?) {
-                                    // this is called when imageView is cleared on lifecycle call or for
-                                    // some other reason.
-                                    // if you are referencing the bitmap somewhere else too other than this imageView
-                                    // clear it here as you can no longer have the bitmap
-                                }
-                            })
-
-
+                        map.addMarker(
+                            MarkerOptions()
+                                .position(LatLng(item.latitude!!, item.longitude!!))
+                                .title(item.message)
+                                .snippet("${item.latitude!!}, ${item.longitude!!}")
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                        )
                     }
                 }
     }
+
 
     private fun startLocationUpdate() {
         viewModel.getLocationData().observe(this, Observer {
