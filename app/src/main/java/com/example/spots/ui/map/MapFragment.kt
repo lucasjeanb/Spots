@@ -48,6 +48,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.contact_item_view_layout.view.*
 import kotlinx.android.synthetic.main.fragment_contacts.view.*
 import kotlinx.android.synthetic.main.fragment_map.*
+import kotlinx.android.synthetic.main.sheet_map.view.*
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
@@ -142,11 +143,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // init the bottom sheet behavior
         var bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet)
 
-        llBottomSheet.contact_recyclerview.adapter = DetailViewRecyclerViewAdapter()
-        llBottomSheet.contact_recyclerview.layoutManager = LinearLayoutManager(activity)
+        llBottomSheet.select_recyclerview.adapter = DetailViewRecyclerViewAdapter()
+        llBottomSheet.select_recyclerview.layoutManager = LinearLayoutManager(activity)
 
         // change the state of the bottom sheet
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
         // set callback for changes
         bottomSheetBehavior.setBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
@@ -227,7 +228,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
 
         override fun onCreateViewHolder(p0: ViewGroup, p1: Int): RecyclerView.ViewHolder {
-            var view = LayoutInflater.from(p0.context).inflate(R.layout.contact_item_view_layout,p0,false)
+            var view = LayoutInflater.from(p0.context).inflate(R.layout.select_item_view_layout,p0,false)
             return CustomViewHolder(view)
         }
 
@@ -249,32 +250,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             //Explain of content
             viewholder.coord_textview.text = contentDTOs[p1].timestamp.toString()
 
-            viewholder.friend_imageview.setOnClickListener {
-                favoriteEvent(p1)
-            }
 
-            if(contentDTOs!![p1].favorites.containsKey(uid)){
-                viewholder.friend_imageview.setImageResource(R.drawable.ic_remove)
 
-            }else{
-                viewholder.friend_imageview.setImageResource(R.drawable.ic_add)
-            }
         }
-        fun favoriteEvent(position : Int){
-            var tsDoc = firestore?.collection("userInfo")?.document(contentUidList[position])
-            firestore?.runTransaction { transaction ->
 
-
-                var contentDTO = transaction.get(tsDoc!!).toObject(ContentDTO::class.java)
-
-                if(contentDTO!!.favorites.containsKey(uid)){
-                    contentDTO?.favorites.remove(uid)
-                }else{
-                    contentDTO?.favorites[uid!!] = true
-                }
-                transaction.set(tsDoc,contentDTO)
-            }
-        }
     }
 
 }

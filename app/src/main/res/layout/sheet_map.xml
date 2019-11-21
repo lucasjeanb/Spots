@@ -29,19 +29,6 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/swipe_up_handle" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/spacing_xxlarge"
-                android:layout_marginStart="@dimen/spacing_xxlarge"
-                android:gravity="center_vertical"
-                android:minHeight="50dp"
-                android:paddingEnd="@dimen/spacing_large"
-                android:paddingLeft="@dimen/spacing_large"
-                android:paddingRight="@dimen/spacing_large"
-                android:paddingStart="@dimen/spacing_large"
-                android:text="Select Someone's Spots"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -50,7 +37,7 @@
                 android:padding="@dimen/spacing_large">
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/contact_recyclerview"
+                    android:id="@+id/select_recyclerview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     />
