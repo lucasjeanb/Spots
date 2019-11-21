@@ -42,10 +42,11 @@
                         android:id="@+id/image_view"
                         android:layout_width="140dp"
                         android:layout_height="140dp"
-                        android:layout_marginTop="8dp"
+                        android:layout_margin="16dp"
                         android:src="@drawable/ic_boy"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <ProgressBar
@@ -82,6 +83,7 @@
                         android:inputType="text"
                         android:imeOptions="actionSearch"
                         android:layout_margin="16dp"
+                        android:visibility="gone"
 
                         android:enabled="true"
                         android:hint="Enter Name"
@@ -160,7 +162,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/text_not_verified"
-
+                    android:visibility="gone"
                     android:layout_marginTop="15dp"
                     android:textColor="@android:color/white"
                     android:background="?colorPrimary"
