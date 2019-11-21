@@ -46,8 +46,12 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.contact_item_view_layout.view.*
+import kotlinx.android.synthetic.main.contact_item_view_layout.view.contactName_textview
+import kotlinx.android.synthetic.main.contact_item_view_layout.view.contact_imageview
+import kotlinx.android.synthetic.main.contact_item_view_layout.view.coord_textview
 import kotlinx.android.synthetic.main.fragment_contacts.view.*
 import kotlinx.android.synthetic.main.fragment_map.*
+import kotlinx.android.synthetic.main.select_item_view_layout.view.*
 import kotlinx.android.synthetic.main.sheet_map.view.*
 
 class MapFragment : Fragment(), OnMapReadyCallback {
@@ -130,7 +134,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                             MarkerOptions()
                                 .position(LatLng(item.latitude!!, item.longitude!!))
                                 .title(item.message)
-                                .snippet("${item.latitude!!}, ${item.longitude!!}")
+                                .snippet(item.userId)
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
                         )
                     }
@@ -207,10 +211,25 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     inner class DetailViewRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
         var contentDTOs : ArrayList<ContentDTO> = arrayListOf()
+        var spotDTOs : ArrayList<SpotDTO> = arrayListOf()
         var contentUidList : ArrayList<String> = arrayListOf()
 
         init {
 
+            firestore?.collection("spots")
+                ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    spotDTOs.clear()
+                    contentUidList.clear()
+                    //Sometimes, This code return null of querySnapshot when it signout
+                    if (querySnapshot == null) return@addSnapshotListener
+
+                    for (snapshot in querySnapshot!!.documents) {
+                        var item = snapshot.toObject(SpotDTO::class.java)
+                        spotDTOs.add(item!!)
+                        contentUidList.add(snapshot.id)
+                    }
+                    notifyDataSetChanged()
+                }
 
             firestore?.collection("userInfo")?.orderBy("timestamp")?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                 contentDTOs.clear()
@@ -249,7 +268,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
             //Explain of content
             viewholder.coord_textview.text = contentDTOs[p1].timestamp.toString()
-
+            viewholder.select_itemview.setOnClickListener {
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(spotDTOs[p1].latitude!!, spotDTOs[p1].longitude!!), 4f))
+                map.animateCamera(CameraUpdateFactory.zoomTo(9f))
+            }
 
 
         }

@@ -139,43 +139,6 @@ class ProfileFragment : Fragment() {
 
             progressbar.visibility = View.INVISIBLE
 
-
-            /*
-            var photo = when {
-                compressedPhotoUri != null -> compressedPhotoUri
-                currentUser?.photoUrl == null -> Uri.parse(DEFAULT_IMAGE_URL)
-                else -> currentUser.photoUrl
-            }
-
-            val name = edit_text_name.text.toString().trim()
-
-            if (name.isEmpty()) {
-                edit_text_name.error = "name required"
-                edit_text_name.requestFocus()
-                return@setOnClickListener
-            }
-
-            val updates = UserProfileChangeRequest.Builder()
-                .setDisplayName(name)
-                .setPhotoUri(photo)
-                .build()
-
-
-            currentUser?.updateProfile(updates)
-                ?.addOnCompleteListener { task ->
-                    progressbar.visibility = View.INVISIBLE
-                    if (task.isSuccessful) {
-                        context?.toast("Profile Updated")
-                    } else {
-                        context?.toast(task.exception?.message!!)
-                    }
-
-
-                }
-
-             */
-
-
         }
 
 
@@ -190,32 +153,6 @@ class ProfileFragment : Fragment() {
                     }
                 }
         }
-    }
-
-    fun changePicture(){
-        var tsDoc = firestore?.collection("userInfo")?.document(uid!!)
-        firestore?.runTransaction { transaction ->
-
-
-            var contentDTO = transaction.get(tsDoc!!).toObject(ContentDTO::class.java)
-
-                contentDTO?.imageUrl = compressedPhotoUri.toString()
-                contentDTO?.favoriteCount = 1
-
-            if(contentDTO!!.favorites.containsKey(uid)){
-                //When the button is clicked
-                contentDTO?.favoriteCount = contentDTO?.favoriteCount - 1
-                contentDTO?.favorites.remove(uid)
-            }else{
-                //When the button is not clicked
-                contentDTO?.favoriteCount = contentDTO?.favoriteCount + 1
-                contentDTO?.favorites[uid!!] = true
-            }
-
-            transaction.set(tsDoc, contentDTO)
-
-        }
-
     }
 
     fun contentUpload(uid: String?) {
@@ -251,14 +188,6 @@ class ProfileFragment : Fragment() {
 
     }
 
-        private fun takePictureIntent() {
-        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { pictureIntent ->
-            pictureIntent.resolveActivity(activity?.packageManager!!)?.also {
-                startActivityForResult(pictureIntent, REQUEST_IMAGE_CAPTURE)
-            }
-        }
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == PICK_PROFILE_FROM_ALBUM && resultCode == Activity.RESULT_OK){
@@ -277,38 +206,6 @@ class ProfileFragment : Fragment() {
             }
 
         }
-    }
-
-    private fun uploadImageAndSaveUri(bitmap: Bitmap) {
-        val baos = ByteArrayOutputStream()
-        val storageRef =
-        // = FirebaseStorage.getInstance()
-            storage.reference
-            .child("pics/${FirebaseAuth.getInstance().currentUser?.uid}")
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val image = baos.toByteArray()
-
-        val upload = storageRef.putBytes(image)
-
-        progressbar_pic.visibility = View.VISIBLE
-        upload.addOnCompleteListener { uploadTask ->
-            progressbar_pic.visibility = View.INVISIBLE
-
-            if (uploadTask.isSuccessful) {
-                storageRef.downloadUrl.addOnCompleteListener { urlTask ->
-                    urlTask.result?.let {
-                        compressedPhotoUri = it
-                        activity?.toast(compressedPhotoUri.toString())
-                        image_view.setImageBitmap(bitmap)
-                    }
-                }
-            } else {
-                uploadTask.exception?.let {
-                    activity?.toast(it.message!!)
-                }
-            }
-        }
-
     }
 
     fun getProfileImage(uid: String?){

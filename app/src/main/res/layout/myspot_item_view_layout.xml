@@ -36,10 +36,18 @@
             android:textStyle="bold"
             android:layout_marginTop="15dp"
             app:layout_constraintBottom_toTopOf="@+id/coord_textview"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/remove_imageview"
             app:layout_constraintStart_toEndOf="@+id/spot_imageview"
             app:layout_constraintTop_toTopOf="parent"
             />
+        <ImageView
+            android:id="@+id/remove_imageview"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/ic_remove"
+            android:layout_margin="4dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"/>
 
         <TextView
             android:id="@+id/coord_textview"

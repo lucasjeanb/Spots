@@ -62,16 +62,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginBottom="108dp"
                     android:backgroundTint="@color/colorPrimaryDark"
                     android:clickable="true"
                     android:tint="@android:color/white"
                     app:fabSize="normal"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:rippleColor="@android:color/white"
-                    app:srcCompat="@drawable/ic_pin_drop" />
+                    app:srcCompat="@drawable/ic_up" />
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
