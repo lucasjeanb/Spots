@@ -38,6 +38,7 @@ class ContactsFragment : Fragment() {
     }
     inner class DetailViewRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
         var contentDTOs : ArrayList<ContentDTO> = arrayListOf()
+        var friendDTOs : ArrayList<ContentDTO.Friend> = arrayListOf()
         var contentUidList : ArrayList<String> = arrayListOf()
 
         init {
@@ -56,6 +57,20 @@ class ContactsFragment : Fragment() {
                 }
                 notifyDataSetChanged()
             }
+            firestore?.collection("userInfo")
+                ?.orderBy("timestamp")?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                contentUidList.clear()
+                friendDTOs.clear()
+                //Sometimes, This code return null of querySnapshot when it signout
+                if(querySnapshot == null) return@addSnapshotListener
+
+                for(snapshot in querySnapshot!!.documents){
+                    var item = snapshot.toObject(ContentDTO.Friend::class.java)
+                    friendDTOs.add(item!!)
+                    contentUidList.add(snapshot.id)
+                }
+                notifyDataSetChanged()
+            }
         }
 
         override fun onCreateViewHolder(p0: ViewGroup, p1: Int): RecyclerView.ViewHolder {
@@ -66,7 +81,7 @@ class ContactsFragment : Fragment() {
         inner class CustomViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
         override fun getItemCount(): Int {
-            return contentDTOs.size
+            return friendDTOs.size
         }
 
         override fun onBindViewHolder(p0: RecyclerView.ViewHolder, p1: Int) {
@@ -85,7 +100,7 @@ class ContactsFragment : Fragment() {
                 favoriteEvent(p1)
             }
 
-            if(contentDTOs!![p1].favorites.containsKey(uid)){
+            if(friendDTOs[p1].friend == true){
                 viewholder.friend_imageview.setImageResource(R.drawable.ic_remove)
 
             }else{
@@ -94,17 +109,41 @@ class ContactsFragment : Fragment() {
         }
         fun favoriteEvent(position : Int){
             var tsDoc = firestore?.collection("userInfo")?.document(contentUidList[position])
+                ?.collection("friends")?.document(contentUidList[position])
             firestore?.runTransaction { transaction ->
 
 
                 var contentDTO = transaction.get(tsDoc!!).toObject(ContentDTO::class.java)
+                var friendDTO = ContentDTO.Friend()
 
+                if(friendDTO.friend == true){
+                    friendDTO.friend = false
+                    Log.d("LOG_X","if == true: ${friendDTO.friend}")
+
+                }
+                if(friendDTO.friend == false) {
+                    friendDTO.friend = true
+                    Log.d("LOG_X", "if == false: ${friendDTO.friend}")
+                }
+                else{
+                    friendDTO.userId = contentDTOs[position].userId
+                    friendDTO.uid = contentUidList[position]
+                    friendDTO.friend = true
+                    friendDTO.timestamp = System.currentTimeMillis()
+                    Log.d("LOG_X","else: ${friendDTO.friend}")
+                }
+                FirebaseFirestore.getInstance().collection("userInfo").document(uid!!)
+                    .collection("friends").document(contentUidList[position]).set(friendDTO)
+
+                /*
                 if(contentDTO!!.favorites.containsKey(uid)){
                     contentDTO?.favorites.remove(uid)
                 }else{
                     contentDTO?.favorites[uid!!] = true
                 }
                 transaction.set(tsDoc,contentDTO)
+
+                 */
             }
         }
     }
