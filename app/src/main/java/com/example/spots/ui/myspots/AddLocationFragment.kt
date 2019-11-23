@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spots.R
 import com.example.spots.adapter.MySpotsAdapter
 import com.example.spots.database.Spot
+import com.example.spots.database.model.ContentDTO
 import com.example.spots.database.model.SpotDTO
 import com.example.spots.util.toast
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -39,6 +40,10 @@ class AddLocationFragment : Fragment() {
     var longitude: Double = 1.0
     var latitudeVM: Double = 1.0
     var longitudeVM: Double = 1.0
+    var firestore : FirebaseFirestore? = null
+    var uid : String? = null
+
+
 
 
     val viewModel: MySpotsViewModel by lazy {
@@ -48,6 +53,8 @@ class AddLocationFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        firestore = FirebaseFirestore.getInstance()
+        uid = FirebaseAuth.getInstance().currentUser?.uid
         homeViewModel = activity?.run {
             ViewModelProviders.of(this)[MySpotsViewModel::class.java]
         }?: throw Exception("Invalid Activity")
@@ -123,15 +130,21 @@ class AddLocationFragment : Fragment() {
     }
 
     fun spotOnDB(lat: Double, long: Double, message: String){
-        var spotDTO = SpotDTO()
-        spotDTO.userId = FirebaseAuth.getInstance().currentUser?.email
-        spotDTO.uid = FirebaseAuth.getInstance().currentUser?.uid
-        spotDTO.message = message
-        spotDTO.latitude = lat
-        spotDTO.longitude = long
-        spotDTO.timestamp = System.currentTimeMillis()
-        spotDTO.imageUrl = "https://picsum.photos/200"
-        FirebaseFirestore.getInstance().collection("spots").document(spotDTO.timestamp.toString()).set(spotDTO)
+
+            var tsDoc = firestore?.collection("userInfo")?.document(uid!!)
+            firestore?.runTransaction { transaction ->
+            var contentDTO = transaction.get(tsDoc!!).toObject(ContentDTO::class.java)
+                var spotDTO = SpotDTO()
+                spotDTO.userId = FirebaseAuth.getInstance().currentUser?.email
+                spotDTO.uid = FirebaseAuth.getInstance().currentUser?.uid
+                spotDTO.message = message
+                spotDTO.latitude = lat
+                spotDTO.longitude = long
+                spotDTO.timestamp = System.currentTimeMillis()
+                spotDTO.imageUrl = contentDTO?.imageUrl
+                FirebaseFirestore.getInstance().collection("spots").document(spotDTO.timestamp.toString()).set(spotDTO)
+        }
+
     }
 
 
