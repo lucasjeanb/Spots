@@ -130,6 +130,7 @@ class AddLocationFragment : Fragment() {
         spotDTO.latitude = lat
         spotDTO.longitude = long
         spotDTO.timestamp = System.currentTimeMillis()
+        spotDTO.imageUrl = "https://picsum.photos/200"
         FirebaseFirestore.getInstance().collection("spots").document(spotDTO.timestamp.toString()).set(spotDTO)
     }
 

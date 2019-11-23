@@ -55,6 +55,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore:21.3.0'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.0.0-alpha1'
     implementation 'com.balysv:material-ripple:1.0.2'
+    implementation 'de.hdodenhof:circleimageview:2.1.0'
 
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'

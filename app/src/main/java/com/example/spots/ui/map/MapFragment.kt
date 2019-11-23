@@ -6,7 +6,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
@@ -27,6 +29,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.example.spots.R
 import com.example.spots.database.Spot
 import com.example.spots.database.model.ContentDTO
@@ -45,6 +49,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.contact_item_view_layout.view.*
 import kotlinx.android.synthetic.main.contact_item_view_layout.view.contactName_textview
 import kotlinx.android.synthetic.main.contact_item_view_layout.view.contact_imageview
@@ -53,6 +58,7 @@ import kotlinx.android.synthetic.main.fragment_contacts.view.*
 import kotlinx.android.synthetic.main.fragment_map.*
 import kotlinx.android.synthetic.main.select_item_view_layout.view.*
 import kotlinx.android.synthetic.main.sheet_map.view.*
+import java.net.URI
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
@@ -135,15 +141,51 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                         var imageView :ImageView
                         spotDTOs.add(item!!)
                         contentUidList.add(snapshot.id)
-                        map.addMarker(
-                            MarkerOptions()
-                                .position(LatLng(item.latitude!!, item.longitude!!))
-                                .title(item.message)
-                                .snippet(item.userId)
-                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                        )
+
+                        Glide.with(this)
+                            .asBitmap()
+                            .load(item.imageUrl)
+                            .into(object : CustomTarget<Bitmap>(){
+                                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                                    map.addMarker(
+                                        MarkerOptions()
+                                            .position(LatLng(item.latitude!!, item.longitude!!))
+                                            .title(item.message)
+                                            .snippet(item.userId)
+                                            .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(requireContext(), resource, "test")))
+                                    )
+                                }
+                                override fun onLoadCleared(placeholder: Drawable?) {
+                                    map.addMarker(
+                                        MarkerOptions()
+                                            .position(LatLng(item.latitude!!, item.longitude!!))
+                                            .title(item.message)
+                                            .snippet(item.userId)
+                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                                    )
+                                }
+                            })
+
                     }
                 }
+    }
+
+    fun createCustomMarker(context:Context, ressource:Bitmap, _name:String):Bitmap {
+        val marker = (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater).inflate(R.layout.custom_marker_layout, null)
+        val markerImage = marker.findViewById(R.id.user_dp) as CircleImageView
+        markerImage.setImageBitmap(ressource)
+        val txt_name = marker.findViewById(R.id.name) as TextView
+        txt_name.setText(_name)
+        val displayMetrics = DisplayMetrics()
+        (context as Activity).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics)
+        marker.setLayoutParams(ViewGroup.LayoutParams(52, ViewGroup.LayoutParams.WRAP_CONTENT))
+        marker.measure(displayMetrics.widthPixels, displayMetrics.heightPixels)
+        marker.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels)
+        marker.buildDrawingCache()
+        val bitmap = Bitmap.createBitmap(marker.getMeasuredWidth(), marker.getMeasuredHeight(), Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        marker.draw(canvas)
+        return bitmap
     }
 
     private fun initComponent() {
