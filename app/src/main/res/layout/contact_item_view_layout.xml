@@ -12,7 +12,7 @@
         android:id="@+id/contact_itemview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#DBF3FF">
+        android:background="#60EEEEEE">
 
 
         <ImageView
@@ -28,14 +28,23 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <ImageView
-            android:id="@+id/friend_imageview"
+            android:id="@+id/remove_imageview"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/contactName_textview"
+            app:layout_constraintEnd_toStartOf="@+id/add_imageview"
+            android:src="@drawable/ic_remove"
+            android:layout_marginTop="60dp"
+            android:layout_marginEnd="12dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"/>
+        <ImageView
+            android:id="@+id/add_imageview"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:src="@drawable/ic_add"
-            android:layout_margin="24dp"
-            android:layout_width="35dp"
-            android:layout_height="35dp"/>
+            android:layout_marginTop="60dp"
+            android:layout_marginEnd="12dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"/>
 
         <TextView
             android:id="@+id/contactName_textview"

@@ -221,21 +221,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         init {
 
-            firestore?.collection("spots")
-                ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                    spotDTOs.clear()
-                    contentUidList.clear()
-                    //Sometimes, This code return null of querySnapshot when it signout
-                    if (querySnapshot == null) return@addSnapshotListener
-
-                    for (snapshot in querySnapshot!!.documents) {
-                        var item = snapshot.toObject(SpotDTO::class.java)
-                        spotDTOs.add(item!!)
-                        contentUidList.add(snapshot.id)
-                    }
-                    notifyDataSetChanged()
-                }
-
             firestore?.collection("userInfo")
                 ?.document(uid!!)?.collection("friends")
                 ?.whereEqualTo("friend",true)
@@ -279,12 +264,22 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             viewholder.coord_textview.text = contentDTOs[p1].timestamp.toString()
             viewholder.select_itemview.setOnClickListener {
                // addMarkerFriend(contentDTOs[p1].userId.toString())
+                //favoriteEvent(p1)
             }
-
-
         }
+        fun favoriteEvent(position : Int){
+            var tsDoc = firestore?.collection("userInfo")?.document(contentUidList[position])?.collection("friends")
+                ?.document(uid!!)
+            firestore?.runTransaction { transaction ->
 
+
+                var contentDTO = transaction.get(tsDoc!!).toObject(ContentDTO::class.java)
+
+                Log.d("LOG_X",contentDTO?.userId.toString())
+
+            }
     }
+
     private fun addMarkerFriend(userId: String){
 
         var spotDTOs: ArrayList<SpotDTO> = arrayListOf()
@@ -317,3 +312,4 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
 
 }
+    }

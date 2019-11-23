@@ -3,11 +3,13 @@ package com.example.spots.ui.contacts
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -17,6 +19,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.spots.R
 import com.example.spots.database.model.ContentDTO
+import com.example.spots.util.toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.contact_item_view_layout.view.*
@@ -91,14 +94,19 @@ class ContactsFragment : Fragment() {
             //Explain of content
             viewholder.coord_textview.text = contentDTOs[p1].timestamp.toString()
 
-            viewholder.friend_imageview.setOnClickListener {
+            viewholder.add_imageview.setOnClickListener {
                 friendEvent(p1,viewholder, true)
+                Toast.makeText(requireContext(), "${contentDTOs[p1].userId} have been added", Toast.LENGTH_SHORT).show()
+
             }
 
-            viewholder.contact_imageview.setOnClickListener {
+            viewholder.remove_imageview.setOnClickListener {
                 friendEvent(p1,viewholder, false)
+                Toast.makeText(requireContext(), "${contentDTOs[p1].userId} have been removed", Toast.LENGTH_SHORT).show()
+
             }
 
+            /*
             firestore?.collection("userInfo")?.document(contentDTOs[p1].uid.toString())
                 ?.collection("friends")
                 ?.orderBy("timestamp")
@@ -119,6 +127,8 @@ class ContactsFragment : Fragment() {
                         }
                     }
                 }
+
+             */
         }
 
         fun friendEvent(position: Int, view: View, boolean: Boolean) {
@@ -135,12 +145,15 @@ class ContactsFragment : Fragment() {
                 friendDTO.timestamp = System.currentTimeMillis()
                 FirebaseFirestore.getInstance().collection("userInfo").document(uid!!)
                     .collection("friends").document(contentUidList[position]).set(friendDTO)
+                /*
                 if (friendDTO.friend == false) {
                     view.friend_imageview.setImageResource(R.drawable.ic_remove)
                 }
                 if (friendDTO.friend == true) {
                     view.friend_imageview.setImageResource(R.drawable.ic_add)
                 }
+
+                 */
             }
         }
     }
