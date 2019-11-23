@@ -42,7 +42,7 @@ class ContactsFragment : Fragment() {
         return view
     }
 
-    inner class DetailViewRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    inner class DetailViewRecyclerViewAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         var contentDTOs: ArrayList<ContentDTO> = arrayListOf()
         var friendDTOs: ArrayList<ContentDTO.Friend> = arrayListOf()
         var contentUidList: ArrayList<String> = arrayListOf()
@@ -50,7 +50,8 @@ class ContactsFragment : Fragment() {
         init {
 
 
-            firestore?.collection("userInfo")?.orderBy("timestamp")
+            firestore?.collection("userInfo")
+                ?.orderBy("timestamp")
                 ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                     contentDTOs.clear()
                     contentUidList.clear()
@@ -60,21 +61,6 @@ class ContactsFragment : Fragment() {
                     for (snapshot in querySnapshot!!.documents) {
                         var item = snapshot.toObject(ContentDTO::class.java)
                         contentDTOs.add(item!!)
-                        contentUidList.add(snapshot.id)
-                    }
-                    notifyDataSetChanged()
-                }
-            firestore?.collection("userInfo")
-                ?.orderBy("timestamp")
-                ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                    contentUidList.clear()
-                    friendDTOs.clear()
-                    //Sometimes, This code return null of querySnapshot when it signout
-                    if (querySnapshot == null) return@addSnapshotListener
-
-                    for (snapshot in querySnapshot!!.documents) {
-                        var item = snapshot.toObject(ContentDTO.Friend::class.java)
-                        friendDTOs.add(item!!)
                         contentUidList.add(snapshot.id)
                     }
                     notifyDataSetChanged()
@@ -90,7 +76,7 @@ class ContactsFragment : Fragment() {
         inner class CustomViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
         override fun getItemCount(): Int {
-            return friendDTOs.size
+            return contentDTOs.size
         }
 
         override fun onBindViewHolder(p0: RecyclerView.ViewHolder, p1: Int) {
@@ -112,6 +98,27 @@ class ContactsFragment : Fragment() {
             viewholder.contact_imageview.setOnClickListener {
                 friendEvent(p1,viewholder, false)
             }
+
+            firestore?.collection("userInfo")?.document(contentDTOs[p1].uid.toString())
+                ?.collection("friends")
+                ?.orderBy("timestamp")
+                ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    friendDTOs.clear()
+                    //Sometimes, This code return null of querySnapshot when it signout
+                    if (querySnapshot == null) return@addSnapshotListener
+
+                    for (snapshot in querySnapshot.documents) {
+                        var item = snapshot.toObject(ContentDTO.Friend::class.java)
+                        friendDTOs.add(item!!)
+                        Log.d("LOG_X", "${item.userId}, ${item.friend}")
+                        if (item.friend == false) {
+                            viewholder.friend_imageview?.setImageResource(R.drawable.ic_remove)
+                        }
+                        if (item.friend == true) {
+                            viewholder.friend_imageview?.setImageResource(R.drawable.ic_add)
+                        }
+                    }
+                }
         }
 
         fun friendEvent(position: Int, view: View, boolean: Boolean) {

@@ -12,7 +12,7 @@
         android:id="@+id/spot_itemview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#DBF3FF">
+        android:background="#60EEEEEE">
 
 
         <ImageView

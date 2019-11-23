@@ -93,7 +93,12 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 ?.addToBackStack(null)
                 ?.commit()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
         initComponent()
+
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -231,7 +236,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     notifyDataSetChanged()
                 }
 
-            firestore?.collection("userInfo")?.orderBy("timestamp")?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+            firestore?.collection("userInfo")
+                ?.document(uid!!)?.collection("friends")
+                ?.whereEqualTo("friend",true)
+                ?.orderBy("timestamp")
+                ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                 contentDTOs.clear()
                 contentUidList.clear()
                 //Sometimes, This code return null of querySnapshot when it signout
@@ -269,13 +278,42 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             //Explain of content
             viewholder.coord_textview.text = contentDTOs[p1].timestamp.toString()
             viewholder.select_itemview.setOnClickListener {
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(spotDTOs[p1].latitude!!, spotDTOs[p1].longitude!!), 4f))
-                map.animateCamera(CameraUpdateFactory.zoomTo(9f))
+               // addMarkerFriend(contentDTOs[p1].userId.toString())
             }
 
 
         }
 
     }
+    private fun addMarkerFriend(userId: String){
+
+        var spotDTOs: ArrayList<SpotDTO> = arrayListOf()
+        var contentUidList: ArrayList<String> = arrayListOf()
+        var firestore = FirebaseFirestore.getInstance()
+
+
+        firestore?.collection("spots").whereEqualTo("userId", userId)
+            ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                spotDTOs.clear()
+                contentUidList.clear()
+                //Sometimes, This code return null of querySnapshot when it signout
+                if (querySnapshot == null) return@addSnapshotListener
+
+                for (snapshot in querySnapshot!!.documents) {
+                    var item = snapshot.toObject(SpotDTO::class.java)
+                    var imageView :ImageView
+                    spotDTOs.add(item!!)
+                    contentUidList.add(snapshot.id)
+                    map.addMarker(
+                        MarkerOptions()
+                            .position(LatLng(item.latitude!!, item.longitude!!))
+                            .title(item.message)
+                            .snippet(item.userId)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                    )
+                }
+            }
+    }
+
 
 }
