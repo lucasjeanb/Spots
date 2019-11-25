@@ -117,7 +117,7 @@ class AddLocationFragment : Fragment() {
             }
             val newSpot = Spot(spotName, latitude, longitude)
             spotOnDB(latitude, longitude, spotName)
-            homeViewModel.setSpot(newSpot)
+            //homeViewModel.setSpot(newSpot)
             fragmentManager?.popBackStack()
         }
     }

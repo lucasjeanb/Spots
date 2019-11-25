@@ -20,6 +20,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.example.spots.HomeActivity
 import com.example.spots.R
 import com.example.spots.database.model.ContentDTO
 import com.example.spots.util.logout
@@ -119,7 +120,7 @@ class ProfileFragment : Fragment() {
 
 
 
-        image_view.setOnClickListener {
+        upload_image_view.setOnClickListener {
             //takePictureIntent()
             ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),1)
 
@@ -161,28 +162,15 @@ class ProfileFragment : Fragment() {
 
         var storageRef = storage?.reference?.child("pics")?.child(imageFileName)
 
-        //Promise method
-
             var contentDTO = ContentDTO()
 
 
-            //Insert uid of user
             contentDTO.uid = auth?.currentUser?.uid
-
-            //Insert userId
             contentDTO.userId = auth?.currentUser?.email
-
-
-            //Insert downloadUrl of image
             contentDTO.imageUrl = imageUrlStart
-
-
-            //Insert timestamp
             contentDTO.timestamp = System.currentTimeMillis()
-
             firestore?.collection("userInfo")?.document(uid!!)?.set(contentDTO)
 
-            //fragmentManager?.popBackStack()
 
     }
 
@@ -209,16 +197,16 @@ class ProfileFragment : Fragment() {
         firestore?.collection("profileImages")?.document(uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
 
             if(documentSnapshot?.data != null){
-                var url = documentSnapshot?.data!!["image"]
+                var url = documentSnapshot.data!!["image"]
                 imageUrlStart = url.toString()
-                Glide.with(activity!!).load(url).apply(RequestOptions().circleCrop()).into(image_view!!)
+                Glide.with(Activity()).load(url).apply(RequestOptions().circleCrop()).into(image_view!!)
             }
             else{
                 imageUrlStart = DEFAULT_IMAGE_URL
-                Glide.with(activity!!).load(imageUrlStart).apply(RequestOptions().circleCrop()).into(image_view!!)
+                Glide.with(Activity()).load(imageUrlStart).apply(RequestOptions().circleCrop()).into(image_view!!)
                 var map = HashMap<String,Any>()
                 map["image"] = imageUrlStart.toString()
-                FirebaseFirestore.getInstance().collection("profileImages").document(uid!!).set(map)
+                FirebaseFirestore.getInstance().collection("profileImages").document(uid).set(map)
             }
             contentUpload(uid)
 

@@ -99,7 +99,23 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 ?.addToBackStack(null)
                 ?.commit()
         }
+        addMarker()
+
     }
+/*
+    fun createUser() {
+
+        var contentDTO = ContentDTO()
+
+        contentDTO.uid = auth?.currentUser?.uid
+        contentDTO.userId = auth?.currentUser?.email
+        contentDTO.imageUrl = DEFAULT_IMAGE_URL
+        contentDTO.timestamp = System.currentTimeMillis()
+
+        firestore?.collection("userInfo")?.document()?.set(contentDTO)
+    }
+
+ */
 
     override fun onResume() {
         super.onResume()
@@ -117,7 +133,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         map.setPadding(0,80,30,0)
 
-        addMarker()
         //viewModel.getSpots()?.observe(this, Observer<List<Spot>> { this.addMarker(it) })
 
         }
@@ -127,47 +142,65 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         var spotDTOs: ArrayList<SpotDTO> = arrayListOf()
         var contentUidList: ArrayList<String> = arrayListOf()
         var firestore = FirebaseFirestore.getInstance()
+        var contentDTOs : ArrayList<ContentDTO> = arrayListOf()
 
+        firestore?.collection("userInfo")
+            ?.document(uid!!)?.collection("friends")
+            ?.whereEqualTo("friend",true)
+            ?.orderBy("userId")
+            ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                contentDTOs.clear()
+                contentUidList.clear()
+                //Sometimes, This code return null of querySnapshot when it signout
+                if(querySnapshot == null) return@addSnapshotListener
 
-        firestore?.collection("spots")
-                ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                    spotDTOs.clear()
-                    contentUidList.clear()
-                    //Sometimes, This code return null of querySnapshot when it signout
-                    if (querySnapshot == null) return@addSnapshotListener
+                for(snapshot in querySnapshot!!.documents){
+                    var item = snapshot.toObject(ContentDTO::class.java)
+                    contentDTOs.add(item!!)
+                    contentUidList.add(snapshot.id)
+                    firestore?.collection("spots")
+                        ?.whereEqualTo("userId",item.userId)
+                        ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                            spotDTOs.clear()
+                            contentUidList.clear()
+                            //Sometimes, This code return null of querySnapshot when it signout
+                            if (querySnapshot == null) return@addSnapshotListener
 
-                    for (snapshot in querySnapshot!!.documents) {
-                        var item = snapshot.toObject(SpotDTO::class.java)
-                        var imageView :ImageView
-                        spotDTOs.add(item!!)
-                        contentUidList.add(snapshot.id)
+                            for (snapshot1 in querySnapshot!!.documents) {
+                                var spotitem = snapshot1.toObject(SpotDTO::class.java)
+                                var imageView :ImageView
+                                spotDTOs.add(spotitem!!)
+                                contentUidList.add(snapshot1.id)
 
-                        Glide.with(this)
-                            .asBitmap()
-                            .load(item.imageUrl)
-                            .into(object : CustomTarget<Bitmap>(){
-                                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                                    map.addMarker(
-                                        MarkerOptions()
-                                            .position(LatLng(item.latitude!!, item.longitude!!))
-                                            .title(item.message)
-                                            .snippet(item.userId)
-                                            .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(requireContext(), resource, "test")))
-                                    )
-                                }
-                                override fun onLoadCleared(placeholder: Drawable?) {
-                                    map.addMarker(
-                                        MarkerOptions()
-                                            .position(LatLng(item.latitude!!, item.longitude!!))
-                                            .title(item.message)
-                                            .snippet(item.userId)
-                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                                    )
-                                }
-                            })
+                                Glide.with(requireContext())
+                                    .asBitmap()
+                                    .load(spotitem.imageUrl)
+                                    .into(object : CustomTarget<Bitmap>(){
+                                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                                            map.addMarker(
+                                                MarkerOptions()
+                                                    .position(LatLng(spotitem.latitude!!, spotitem.longitude!!))
+                                                    .title(spotitem.message)
+                                                    .snippet(spotitem.userId)
+                                                    .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(requireContext(), resource, "test")))
+                                            )
+                                        }
+                                        override fun onLoadCleared(placeholder: Drawable?) {
+                                            map.addMarker(
+                                                MarkerOptions()
+                                                    .position(LatLng(spotitem.latitude!!, spotitem.longitude!!))
+                                                    .title(spotitem.message)
+                                                    .snippet(spotitem.userId)
+                                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                                            )
+                                        }
+                                    })
 
-                    }
+                            }
+                        }
                 }
+            }
+
     }
 
     fun createCustomMarker(context:Context, ressource:Bitmap, _name:String):Bitmap {
@@ -266,7 +299,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             firestore?.collection("userInfo")
                 ?.document(uid!!)?.collection("friends")
                 ?.whereEqualTo("friend",true)
-                ?.orderBy("timestamp")
+                ?.orderBy("userId")
                 ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                 contentDTOs.clear()
                 contentUidList.clear()
