@@ -54,7 +54,7 @@ class ContactsFragment : Fragment() {
 
 
             firestore?.collection("userInfo")
-                ?.orderBy("userId")
+                ?.orderBy("timestamp")
                 ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                     contentDTOs.clear()
                     contentUidList.clear()

@@ -44,9 +44,9 @@
                         android:layout_height="140dp"
                         android:layout_margin="16dp"
                         android:src="@drawable/ic_boy"
-                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <ProgressBar
@@ -62,15 +62,16 @@
                         android:layout_height="wrap_content"/>
 
                     <ImageView
-                        android:id="@+id/upload_image_view"
-                        app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/image_view"
+                    app:layout_constraintStart_toStartOf="@+id/image_view"
+                    app:layout_constraintEnd_toEndOf="@+id/image_view"
+                    app:layout_constraintBottom_toBottomOf="@+id/image_view"
                         android:backgroundTint="@color/colorPrimaryDark"
                         android:src="@drawable/ic_file_upload"
                         android:elevation="14dp"
                     android:layout_centerInParent="true"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"/>
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"/>
 
                     <EditText
                         android:id="@+id/edit_text_name"

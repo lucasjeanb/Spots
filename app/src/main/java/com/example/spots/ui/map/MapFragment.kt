@@ -99,7 +99,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 ?.addToBackStack(null)
                 ?.commit()
         }
-
     }
 
     override fun onResume() {
@@ -118,87 +117,67 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         map.setPadding(0,80,30,0)
 
+        addMarker()
         //viewModel.getSpots()?.observe(this, Observer<List<Spot>> { this.addMarker(it) })
 
         }
 
     private fun addMarker(){
 
-        if (activity == null) {
-            return
-        }
-
         var spotDTOs: ArrayList<SpotDTO> = arrayListOf()
         var contentUidList: ArrayList<String> = arrayListOf()
         var firestore = FirebaseFirestore.getInstance()
-        var contentDTOs : ArrayList<ContentDTO> = arrayListOf()
 
-        firestore?.collection("userInfo")
-            ?.document(uid!!)?.collection("friends")
-            ?.whereEqualTo("friend",true)
-            ?.orderBy("userId")
-            ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                contentDTOs.clear()
-                contentUidList.clear()
-                //Sometimes, This code return null of querySnapshot when it signout
-                if(querySnapshot == null) return@addSnapshotListener
 
-                for(snapshot in querySnapshot!!.documents){
-                    var item = snapshot.toObject(ContentDTO::class.java)
-                    contentDTOs.add(item!!)
-                    contentUidList.add(snapshot.id)
-                    firestore?.collection("spots")
-                        ?.whereEqualTo("userId",item.userId)
-                        ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                            spotDTOs.clear()
-                            contentUidList.clear()
-                            //Sometimes, This code return null of querySnapshot when it signout
-                            if (querySnapshot == null) return@addSnapshotListener
+        firestore?.collection("spots")
+                ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    spotDTOs.clear()
+                    contentUidList.clear()
+                    //Sometimes, This code return null of querySnapshot when it signout
+                    if (querySnapshot == null) return@addSnapshotListener
 
-                            for (snapshot1 in querySnapshot!!.documents) {
-                                var spotitem = snapshot1.toObject(SpotDTO::class.java)
-                                spotDTOs.add(spotitem!!)
-                                contentUidList.add(snapshot1.id)
+                    for (snapshot in querySnapshot!!.documents) {
+                        var item = snapshot.toObject(SpotDTO::class.java)
+                        var imageView :ImageView
+                        spotDTOs.add(item!!)
+                        contentUidList.add(snapshot.id)
 
-                                Glide.with(this)
-                                    .asBitmap()
-                                    .load(spotitem.imageUrl)
-                                    .into(object : CustomTarget<Bitmap>(){
-                                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                                            map.addMarker(
-                                                MarkerOptions()
-                                                    .position(LatLng(spotitem.latitude!!, spotitem.longitude!!))
-                                                    .title(spotitem.message)
-                                                    .snippet(spotitem.userId)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(requireContext(), resource, "test")))
-                                            )
-                                        }
-                                        override fun onLoadCleared(placeholder: Drawable?) {
-                                            map.addMarker(
-                                                MarkerOptions()
-                                                    .position(LatLng(spotitem.latitude!!, spotitem.longitude!!))
-                                                    .title(spotitem.message)
-                                                    .snippet(spotitem.userId)
-                                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                                            )
-                                        }
-                                    })
+                        Glide.with(this)
+                            .asBitmap()
+                            .load(item.imageUrl)
+                            .into(object : CustomTarget<Bitmap>(){
+                                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                                    map.addMarker(
+                                        MarkerOptions()
+                                            .position(LatLng(item.latitude!!, item.longitude!!))
+                                            .title(item.message)
+                                            .snippet(item.userId)
+                                            .icon(BitmapDescriptorFactory.fromBitmap(createCustomMarker(requireContext(), resource, "test")))
+                                    )
+                                }
+                                override fun onLoadCleared(placeholder: Drawable?) {
+                                    map.addMarker(
+                                        MarkerOptions()
+                                            .position(LatLng(item.latitude!!, item.longitude!!))
+                                            .title(item.message)
+                                            .snippet(item.userId)
+                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                                    )
+                                }
+                            })
 
-                            }
-                        }
+                    }
                 }
-            }
-
     }
 
     fun createCustomMarker(context:Context, ressource:Bitmap, _name:String):Bitmap {
-        val marker = (requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater).inflate(R.layout.custom_marker_layout, null)
+        val marker = (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater).inflate(R.layout.custom_marker_layout, null)
         val markerImage = marker.findViewById(R.id.user_dp) as CircleImageView
         markerImage.setImageBitmap(ressource)
         val txt_name = marker.findViewById(R.id.name) as TextView
         txt_name.setText(_name)
         val displayMetrics = DisplayMetrics()
-        requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics)
+        (context as Activity).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics)
         marker.setLayoutParams(ViewGroup.LayoutParams(52, ViewGroup.LayoutParams.WRAP_CONTENT))
         marker.measure(displayMetrics.widthPixels, displayMetrics.heightPixels)
         marker.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels)
@@ -207,7 +186,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val canvas = Canvas(bitmap)
         marker.draw(canvas)
         return bitmap
-
     }
 
     private fun initComponent() {
@@ -235,10 +213,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED)
 
         }
-        addMarker()
-
     }
-
     private fun startLocationUpdate() {
         viewModel.getLocationData().observe(this, Observer {
             longitude = it.longitude
@@ -291,7 +266,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             firestore?.collection("userInfo")
                 ?.document(uid!!)?.collection("friends")
                 ?.whereEqualTo("friend",true)
-                ?.orderBy("userId")
+                ?.orderBy("timestamp")
                 ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                 contentDTOs.clear()
                 contentUidList.clear()
@@ -325,7 +300,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             viewholder.contactName_textview.text = contentDTOs[p1].userId
 
             //Image
-            Glide.with(requireActivity()).load(contentDTOs[p1].imageUrl).apply(RequestOptions().circleCrop()).into(viewholder.contact_imageview)
+            Glide.with(p0.itemView.context).load(contentDTOs[p1].imageUrl).apply(RequestOptions().circleCrop()).into(viewholder.contact_imageview)
 
             //Explain of content
             viewholder.coord_textview.text = contentDTOs[p1].timestamp.toString()
