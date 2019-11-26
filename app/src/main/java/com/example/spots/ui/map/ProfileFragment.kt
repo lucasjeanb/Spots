@@ -211,11 +211,17 @@ class ProfileFragment : Fragment() {
             if(documentSnapshot?.data != null){
                 var url = documentSnapshot?.data!!["image"]
                 imageUrlStart = url.toString()
-                Glide.with(activity!!).load(url).apply(RequestOptions().circleCrop()).into(image_view!!)
+                if (isAdded) {
+                    Glide.with(this).load(url).apply(RequestOptions().circleCrop())
+                        .into(image_view!!)
+                }
             }
             else{
                 imageUrlStart = DEFAULT_IMAGE_URL
-                Glide.with(activity!!).load(imageUrlStart).apply(RequestOptions().circleCrop()).into(image_view!!)
+                if (isAdded) {
+                    Glide.with(this).load(imageUrlStart).apply(RequestOptions().circleCrop())
+                        .into(image_view!!)
+                }
                 var map = HashMap<String,Any>()
                 map["image"] = imageUrlStart.toString()
                 FirebaseFirestore.getInstance().collection("profileImages").document(uid!!).set(map)
