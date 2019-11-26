@@ -88,7 +88,7 @@ class ContactsFragment : Fragment() {
             viewholder.contactName_textview.text = contentDTOs[p1].userId
 
             //Image
-            Glide.with(p0.itemView.context).load(contentDTOs[p1].imageUrl)
+            Glide.with(requireContext()).load(contentDTOs[p1].imageUrl)
                 .apply(RequestOptions().circleCrop()).into(viewholder.contact_imageview)
 
             //Explain of content

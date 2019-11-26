@@ -55,6 +55,7 @@ class AddLocationFragment : Fragment() {
         super.onCreate(savedInstanceState)
         firestore = FirebaseFirestore.getInstance()
         uid = FirebaseAuth.getInstance().currentUser?.uid
+        /*
         homeViewModel = activity?.run {
             ViewModelProviders.of(this)[MySpotsViewModel::class.java]
         }?: throw Exception("Invalid Activity")
@@ -69,13 +70,15 @@ class AddLocationFragment : Fragment() {
 
         })
 
+         */
+
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-          startLocationUpdate()
+          //startLocationUpdate()
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_add_location, container, false)
     }

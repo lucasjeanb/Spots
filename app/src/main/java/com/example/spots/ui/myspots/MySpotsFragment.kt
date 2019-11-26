@@ -82,7 +82,7 @@ class MySpotsFragment : Fragment() {
 
         override fun onCreateViewHolder(p0: ViewGroup, p1: Int): RecyclerView.ViewHolder {
             var view =
-                LayoutInflater.from(p0.context).inflate(R.layout.myspot_item_view_layout, p0, false)
+                LayoutInflater.from(activity).inflate(R.layout.myspot_item_view_layout, p0, false)
             return CustomViewHolder(view)
         }
 

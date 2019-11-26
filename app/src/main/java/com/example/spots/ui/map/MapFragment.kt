@@ -99,23 +99,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 ?.addToBackStack(null)
                 ?.commit()
         }
-        addMarker()
 
     }
-/*
-    fun createUser() {
-
-        var contentDTO = ContentDTO()
-
-        contentDTO.uid = auth?.currentUser?.uid
-        contentDTO.userId = auth?.currentUser?.email
-        contentDTO.imageUrl = DEFAULT_IMAGE_URL
-        contentDTO.timestamp = System.currentTimeMillis()
-
-        firestore?.collection("userInfo")?.document()?.set(contentDTO)
-    }
-
- */
 
     override fun onResume() {
         super.onResume()
@@ -138,6 +123,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
 
     private fun addMarker(){
+
+        if (activity == null) {
+            return
+        }
 
         var spotDTOs: ArrayList<SpotDTO> = arrayListOf()
         var contentUidList: ArrayList<String> = arrayListOf()
@@ -168,11 +157,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
                             for (snapshot1 in querySnapshot!!.documents) {
                                 var spotitem = snapshot1.toObject(SpotDTO::class.java)
-                                var imageView :ImageView
                                 spotDTOs.add(spotitem!!)
                                 contentUidList.add(snapshot1.id)
 
-                                Glide.with(requireContext())
+                                Glide.with(this)
                                     .asBitmap()
                                     .load(spotitem.imageUrl)
                                     .into(object : CustomTarget<Bitmap>(){
@@ -204,13 +192,13 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     fun createCustomMarker(context:Context, ressource:Bitmap, _name:String):Bitmap {
-        val marker = (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater).inflate(R.layout.custom_marker_layout, null)
+        val marker = (requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater).inflate(R.layout.custom_marker_layout, null)
         val markerImage = marker.findViewById(R.id.user_dp) as CircleImageView
         markerImage.setImageBitmap(ressource)
         val txt_name = marker.findViewById(R.id.name) as TextView
         txt_name.setText(_name)
         val displayMetrics = DisplayMetrics()
-        (context as Activity).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics)
+        requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics)
         marker.setLayoutParams(ViewGroup.LayoutParams(52, ViewGroup.LayoutParams.WRAP_CONTENT))
         marker.measure(displayMetrics.widthPixels, displayMetrics.heightPixels)
         marker.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels)
@@ -219,6 +207,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val canvas = Canvas(bitmap)
         marker.draw(canvas)
         return bitmap
+
     }
 
     private fun initComponent() {
@@ -246,7 +235,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED)
 
         }
+        addMarker()
+
     }
+
     private fun startLocationUpdate() {
         viewModel.getLocationData().observe(this, Observer {
             longitude = it.longitude
@@ -333,7 +325,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             viewholder.contactName_textview.text = contentDTOs[p1].userId
 
             //Image
-            Glide.with(p0.itemView.context).load(contentDTOs[p1].imageUrl).apply(RequestOptions().circleCrop()).into(viewholder.contact_imageview)
+            Glide.with(requireActivity()).load(contentDTOs[p1].imageUrl).apply(RequestOptions().circleCrop()).into(viewholder.contact_imageview)
 
             //Explain of content
             viewholder.coord_textview.text = contentDTOs[p1].timestamp.toString()
