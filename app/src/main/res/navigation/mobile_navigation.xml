@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/navigation_map"
-        android:name="com.example.spots.ui.map.MapFragment"
+        android:name="com.bonnelife.spots.ui.map.MapFragment"
         android:label="@string/title_map"
         tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/navigation_myspots"
-        android:name="com.example.spots.ui.myspots.MySpotsFragment"
+        android:name="com.bonnelife.spots.ui.myspots.MySpotsFragment"
         android:label="@string/title_myspots"
         tools:layout="@layout/fragment_myspots" >
         <action
@@ -27,12 +27,12 @@
 
     <fragment
         android:id="@+id/navigation_contacts"
-        android:name="com.example.spots.ui.contacts.ContactsFragment"
+        android:name="com.bonnelife.spots.ui.contacts.ContactsFragment"
         android:label="@string/title_contacts"
         tools:layout="@layout/fragment_contacts" />
     <fragment
         android:id="@+id/addLocationFragment2"
-        android:name="com.example.spots.ui.myspots.AddLocationFragment"
+        android:name="com.bonnelife.spots.ui.myspots.AddLocationFragment"
         android:label="fragment_add_location"
         tools:layout="@layout/fragment_add_location" >
         <action
@@ -45,7 +45,7 @@
     </fragment>
     <fragment
         android:id="@+id/selectLocationFragment2"
-        android:name="com.example.spots.ui.myspots.SelectLocationFragment"
+        android:name="com.bonnelife.spots.ui.myspots.SelectLocationFragment"
         android:label="fragment_select_location"
         tools:layout="@layout/fragment_select_location" />
 </navigation>

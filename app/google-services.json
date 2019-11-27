@@ -8,17 +8,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1095237905365:android:6c33142e4bbe02b4f7eb5c",
+        "mobilesdk_app_id": "1:1095237905365:android:9da6fb00b0b4dd68f7eb5c",
         "android_client_info": {
-          "package_name": "com.example.spots"
+          "package_name": "com.bonnelife.spots"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1095237905365-qd4her6sbg7v6ug6ju07u8govpoudsj2.apps.googleusercontent.com",
+          "client_id": "1095237905365-d5pnf2f93f1j3shcs31rkmnvh9924ncf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.spots",
+            "package_name": "com.bonnelife.spots",
             "certificate_hash": "b2484c53b9cdbf0a2331f835b883eaddd6567ad4"
           }
         }
@@ -29,12 +29,6 @@
         },
         {
           "current_key": "AIzaSyD4vGKW9vJKxpwdSc1jtDGg09Cj2GAzJ_c"
-        },
-        {
-          "current_key": "AIzaSyBuqd1ro_F3oriwEh732ipqiXdloTB65ao"
-        },
-        {
-          "current_key": "AIzaSyB1B7zTwY84mZgaqPHumLmi1XJW_IXzf9I"
         }
       ],
       "services": {
@@ -57,12 +51,6 @@
         },
         {
           "current_key": "AIzaSyD4vGKW9vJKxpwdSc1jtDGg09Cj2GAzJ_c"
-        },
-        {
-          "current_key": "AIzaSyBuqd1ro_F3oriwEh732ipqiXdloTB65ao"
-        },
-        {
-          "current_key": "AIzaSyB1B7zTwY84mZgaqPHumLmi1XJW_IXzf9I"
         }
       ],
       "services": {
@@ -73,17 +61,17 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1095237905365:android:498c43becf6e8c36f7eb5c",
+        "mobilesdk_app_id": "1:1095237905365:android:5416c31237201d2df7eb5c",
         "android_client_info": {
-          "package_name": "com.exemple.spots"
+          "package_name": "com.howl.howlstagram_f16"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1095237905365-m2j16q79brpfsgsdsnt8s1hrse4uq8ri.apps.googleusercontent.com",
+          "client_id": "1095237905365-j3ums8mq15lo8grl05pnlvog2hqdiunf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.exemple.spots",
+            "package_name": "com.howl.howlstagram_f16",
             "certificate_hash": "b2484c53b9cdbf0a2331f835b883eaddd6567ad4"
           }
         }
@@ -94,12 +82,6 @@
         },
         {
           "current_key": "AIzaSyD4vGKW9vJKxpwdSc1jtDGg09Cj2GAzJ_c"
-        },
-        {
-          "current_key": "AIzaSyBuqd1ro_F3oriwEh732ipqiXdloTB65ao"
-        },
-        {
-          "current_key": "AIzaSyB1B7zTwY84mZgaqPHumLmi1XJW_IXzf9I"
         }
       ],
       "services": {
