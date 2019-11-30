@@ -211,8 +211,7 @@ class ProfileFragment : Fragment() {
                     for(snapshot in querySnapshot!!.documents){
                         var item = snapshot.toObject(ContentDTO::class.java)
                         contentDTOs.add(item!!)
-                        Log.d("LOG_X", item.uid!!)
-                        firestore?.collection("userInfo")?.document(uid!!)?.collection("friends")?.document(item.uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+                        firestore?.collection("userInfo")?.document(uid.toString())?.collection("friends")?.document(item.uid.toString())?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
 
                             if (documentSnapshot?.data == null) {
                                 var friendDTO = ContentDTO.Friend()
@@ -224,7 +223,7 @@ class ProfileFragment : Fragment() {
                                     friendDTO.uid = item.uid
                                     friendDTO.friend = false
                                     friendDTO.timestamp = System.currentTimeMillis()
-                                    FirebaseFirestore.getInstance().collection("userInfo").document(uid)
+                                    FirebaseFirestore.getInstance().collection("userInfo").document(uid!!)
                                         .collection("friends").document(item.uid!!).set(friendDTO)
                                 }
                             }
