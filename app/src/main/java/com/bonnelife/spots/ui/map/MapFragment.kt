@@ -1,6 +1,7 @@
 package com.bonnelife.spots.ui.map
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
@@ -16,6 +17,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -45,6 +48,8 @@ import kotlinx.android.synthetic.main.contact_item_view_layout.view.contactName_
 import kotlinx.android.synthetic.main.contact_item_view_layout.view.contact_imageview
 import kotlinx.android.synthetic.main.contact_item_view_layout.view.coord_textview
 import kotlinx.android.synthetic.main.fragment_map.*
+import kotlinx.android.synthetic.main.fragment_profile.*
+import kotlinx.android.synthetic.main.myspot_item_view_layout.view.*
 import kotlinx.android.synthetic.main.select_item_view_layout.view.*
 import kotlinx.android.synthetic.main.sheet_map.view.*
 
@@ -73,6 +78,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val root = inflater.inflate(R.layout.fragment_map, container, false)
         return root
     }
+    @SuppressLint("RestrictedApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -80,6 +86,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
 
+        val llBottomSheet = requireActivity().findViewById(R.id.bottom_sheet) as LinearLayout
+        var bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet)
+
+        fab_directions.setOnClickListener {
+            llBottomSheet.select_recyclerview.adapter = DetailViewRecyclerViewAdapter()
+            llBottomSheet.select_recyclerview.layoutManager = LinearLayoutManager(activity)
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED)
+            fab_directions.visibility = View.GONE
+        }
         profile_button.setOnClickListener {
             var profileFragment = ProfileFragment()
             fragmentManager?.beginTransaction()
@@ -229,25 +244,26 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // init the bottom sheet behavior
         var bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet)
 
-        llBottomSheet.select_recyclerview.adapter = DetailViewRecyclerViewAdapter()
-        llBottomSheet.select_recyclerview.layoutManager = LinearLayoutManager(activity)
 
         // change the state of the bottom sheet
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
+        bottomSheetBehavior.isFitToContents = true
+        bottomSheetBehavior.peekHeight = 400
         // set callback for changes
         bottomSheetBehavior.setBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(p0: View, p1: Float) {
             }
 
+            @SuppressLint("RestrictedApi")
             override fun onStateChanged(p0: View, p1: Int) {
+                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
+                    fab_directions.visibility = View.GONE
+                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN)
+                fab_directions.visibility = View.VISIBLE
             }
+
         })
-
-        fab_directions.setOnClickListener {
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED)
-
-        }
     }
     private fun startLocationUpdate() {
         viewModel.getLocationData().observe(this, Observer {
@@ -330,6 +346,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         override fun onBindViewHolder(p0: RecyclerView.ViewHolder, p1: Int) {
             var viewholder = (p0 as CustomViewHolder).itemView
+            var contentDTOuid = contentDTOs[p1].uid
+            var contentDTOuser = contentDTOs[p1].userId
 
             //UserId
             viewholder.contactName_textview.text = contentDTOs[p1].userId
@@ -337,6 +355,29 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             //Image
             Glide.with(this@MapFragment).load(contentDTOs[p1].imageUrl).apply(RequestOptions().circleCrop()).into(viewholder.contact_imageview)
 
+            viewholder.addSelect_imageview.setOnClickListener {
+                AlertDialog.Builder(requireContext()).apply {
+                    setTitle("Are you sure you want to remove $contentDTOuser ?")
+                    setPositiveButton("Yes") { _, _ ->
+                        var friendDTO = ContentDTO.Friend()
+                        friendDTO.userId = contentDTOuser
+                        friendDTO.uid = contentDTOuid
+                        friendDTO.friend = false
+                        friendDTO.timestamp = System.currentTimeMillis()
+                        FirebaseFirestore.getInstance().collection("userInfo").document(uid!!)
+                            .collection("friends").document(contentDTOuid!!).set(friendDTO)
+                            ?.addOnSuccessListener {
+                                Toast.makeText(requireContext(), "Friend Removed", Toast.LENGTH_SHORT).show()
+                                //notifyItemRemoved(p1)
+                                val llBottomSheet = requireActivity().findViewById(R.id.bottom_sheet) as LinearLayout
+                                var bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet)
+                                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
+                            }
+                    }
+                    setNegativeButton("Cancel") { _, _ ->
+                    }
+                }.create().show()
+            }
             //Explain of content
             viewholder.coord_textview.text = contentDTOs[p1].timestamp.toString()
             viewholder.select_itemview.setOnClickListener {
