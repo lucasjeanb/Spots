@@ -90,8 +90,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         var bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet)
 
         fab_directions.setOnClickListener {
-            llBottomSheet.select_recyclerview.adapter = DetailViewRecyclerViewAdapter()
-            llBottomSheet.select_recyclerview.layoutManager = LinearLayoutManager(activity)
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED)
             fab_directions.visibility = View.GONE
         }
@@ -246,7 +244,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
 
         // change the state of the bottom sheet
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
+        llBottomSheet.select_recyclerview.adapter = DetailViewRecyclerViewAdapter()
+        llBottomSheet.select_recyclerview.layoutManager = LinearLayoutManager(activity)
+
         bottomSheetBehavior.isFitToContents = true
         bottomSheetBehavior.peekHeight = 400
         // set callback for changes
@@ -257,7 +258,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
             @SuppressLint("RestrictedApi")
             override fun onStateChanged(p0: View, p1: Int) {
+                bottomSheetBehavior.isHideable == false
                 if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
+
                     fab_directions.visibility = View.GONE
                 if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN)
                 fab_directions.visibility = View.VISIBLE
