@@ -37,23 +37,24 @@ class ContactsFragment : Fragment() {
     }
 
     inner class DetailViewRecyclerViewAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-        var contentDTOs: ArrayList<ContentDTO> = arrayListOf()
+        var contentDTOs: ArrayList<ContentDTO.Friend> = arrayListOf()
         var friendDTOs: ArrayList<ContentDTO.Friend> = arrayListOf()
         var contentUidList: ArrayList<String> = arrayListOf()
 
         init {
 
-
             firestore?.collection("userInfo")
+                ?.document(uid!!)?.collection("friends")
+                ?.whereEqualTo("friend",false)
                 ?.orderBy("userId")
                 ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                     contentDTOs.clear()
                     contentUidList.clear()
                     //Sometimes, This code return null of querySnapshot when it signout
-                    if (querySnapshot == null) return@addSnapshotListener
+                    if(querySnapshot == null) return@addSnapshotListener
 
-                    for (snapshot in querySnapshot!!.documents) {
-                        var item = snapshot.toObject(ContentDTO::class.java)
+                    for(snapshot in querySnapshot!!.documents){
+                        var item = snapshot.toObject(ContentDTO.Friend::class.java)
                         contentDTOs.add(item!!)
                         contentUidList.add(snapshot.id)
                     }
@@ -75,76 +76,53 @@ class ContactsFragment : Fragment() {
 
         override fun onBindViewHolder(p0: RecyclerView.ViewHolder, p1: Int) {
             var viewholder = (p0 as CustomViewHolder).itemView
+            var contentDTOuid = contentDTOs[p1].uid
+            var contentDTOuser = contentDTOs[p1].userId
+            var contentDTOfriend = contentDTOs[p1].friend
             //UserId
             viewholder.contactName_textview.text = contentDTOs[p1].userId
 
             //Image
+            /*
             Glide.with(requireContext()).load(contentDTOs[p1].imageUrl)
                 .apply(RequestOptions().circleCrop()).into(viewholder.contact_imageview)
+             */
 
             //Explain of content
             viewholder.coord_textview.text = contentDTOs[p1].timestamp.toString()
 
             viewholder.add_imageview.setOnClickListener {
-                friendEvent(p1,viewholder, true)
-                Toast.makeText(requireContext(), "${contentDTOs[p1].userId} have been added", Toast.LENGTH_SHORT).show()
-
-            }
-
-            viewholder.remove_imageview.setOnClickListener {
-                friendEvent(p1,viewholder, false)
-                Toast.makeText(requireContext(), "${contentDTOs[p1].userId} have been removed", Toast.LENGTH_SHORT).show()
-
-            }
-
-            /*
-            firestore?.collection("userInfo")?.document(contentDTOs[p1].uid.toString())
-                ?.collection("friends")
-                ?.orderBy("timestamp")
-                ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                    friendDTOs.clear()
-                    //Sometimes, This code return null of querySnapshot when it signout
-                    if (querySnapshot == null) return@addSnapshotListener
-
-                    for (snapshot in querySnapshot.documents) {
-                        var item = snapshot.toObject(ContentDTO.Friend::class.java)
-                        friendDTOs.add(item!!)
-                        Log.d("LOG_X", "${item.userId}, ${item.friend}")
-                        if (item.friend == false) {
-                            viewholder.friend_imageview?.setImageResource(R.drawable.ic_remove)
+                    var friendDTO = ContentDTO.Friend()
+                    friendDTO.userId = contentDTOuser
+                    friendDTO.uid = contentDTOuid
+                    friendDTO.friend = true
+                    friendDTO.timestamp = System.currentTimeMillis()
+                    FirebaseFirestore.getInstance().collection("userInfo").document(uid!!)
+                        .collection("friends").document(contentDTOuid!!).set(friendDTO)
+                        ?.addOnSuccessListener {
+                            Toast.makeText(
+                                requireContext(),
+                                "${contentDTOuser} have been added",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
-                        if (item.friend == true) {
-                            viewholder.friend_imageview?.setImageResource(R.drawable.ic_add)
-                        }
-                    }
-                }
-
-             */
+                    viewholder.add_imageview?.setImageResource(R.drawable.ic_check)
+            }
         }
 
         fun friendEvent(position: Int, view: View, boolean: Boolean) {
             var friendDTO = ContentDTO.Friend()
 
-            firestore?.collection("userInfo")?.document(contentUidList[position])
-                ?.collection("friends")?.document(contentUidList[position])
             firestore?.runTransaction { transaction ->
 
 
                 friendDTO.userId = contentDTOs[position].userId
-                friendDTO.uid = contentUidList[position]
+                friendDTO.uid = contentDTOs[position].uid
                 friendDTO.friend = boolean
                 friendDTO.timestamp = System.currentTimeMillis()
                 FirebaseFirestore.getInstance().collection("userInfo").document(uid!!)
-                    .collection("friends").document(contentUidList[position]).set(friendDTO)
-                /*
-                if (friendDTO.friend == false) {
-                    view.friend_imageview.setImageResource(R.drawable.ic_remove)
-                }
-                if (friendDTO.friend == true) {
-                    view.friend_imageview.setImageResource(R.drawable.ic_add)
-                }
+                    .collection("friends").document(contentDTOs[position].uid.toString()).set(friendDTO)
 
-                 */
             }
         }
     }

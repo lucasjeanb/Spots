@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -198,6 +199,40 @@ class ProfileFragment : Fragment() {
     }
 
     fun getProfileImage(uid: String?){
+        var contentDTOs: ArrayList<ContentDTO> = arrayListOf()
+
+            firestore?.collection("userInfo")
+                ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    contentDTOs.clear()
+
+                    //Sometimes, This code return null of querySnapshot when it signout
+                    if(querySnapshot == null) return@addSnapshotListener
+
+                    for(snapshot in querySnapshot!!.documents){
+                        var item = snapshot.toObject(ContentDTO::class.java)
+                        contentDTOs.add(item!!)
+                        Log.d("LOG_X", item.uid!!)
+                        firestore?.collection("userInfo")?.document(uid!!)?.collection("friends")?.document(item.uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+
+                            if (documentSnapshot?.data == null) {
+                                var friendDTO = ContentDTO.Friend()
+
+                                firestore?.runTransaction { transaction ->
+
+
+                                    friendDTO.userId = item.userId
+                                    friendDTO.uid = item.uid
+                                    friendDTO.friend = false
+                                    friendDTO.timestamp = System.currentTimeMillis()
+                                    FirebaseFirestore.getInstance().collection("userInfo").document(uid)
+                                        .collection("friends").document(item.uid!!).set(friendDTO)
+                                }
+                            }
+                        }
+                    }
+
+
+
         firestore?.collection("profileImages")?.document(uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
 
             if(documentSnapshot?.data != null){
@@ -224,3 +259,4 @@ class ProfileFragment : Fragment() {
 
     }
 }
+    }
