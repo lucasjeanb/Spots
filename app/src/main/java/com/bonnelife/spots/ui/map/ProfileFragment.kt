@@ -79,7 +79,6 @@ class ProfileFragment : Fragment() {
         fragment_background_click.setOnClickListener{
             fragmentManager?.popBackStack()
         }
-        getProfileImage(uid)
 
         currentUser?.let { user ->
             /*
@@ -113,7 +112,7 @@ class ProfileFragment : Fragment() {
 
 
 
-        image_view.setOnClickListener {
+        upload_image_view.setOnClickListener {
             //takePictureIntent()
             ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),1)
 
@@ -147,27 +146,6 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    fun contentUpload(uid: String?) {
-        firestore?.collection("userInfo")?.document(uid!!)
-            ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-
-                if(querySnapshot == null) {
-                    var timestamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-                    var imageFileName = "IMAGE_" + timestamp + "_.png"
-
-                    var storageRef = storage?.reference?.child("pics")?.child(imageFileName)
-                    var contentDTO = ContentDTO()
-                    contentDTO.uid = auth?.currentUser?.uid
-                    contentDTO.userId = auth?.currentUser?.email
-                    contentDTO.imageUrl = imageUrlStart
-                    contentDTO.timestamp = System.currentTimeMillis()
-                    firestore?.collection("userInfo")?.document(uid!!)?.set(contentDTO)
-
-                    //fragmentManager?.popBackStack()
-                }
-            }
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == PICK_PROFILE_FROM_ALBUM && resultCode == Activity.RESULT_OK){
@@ -181,73 +159,12 @@ class ProfileFragment : Fragment() {
                 var map = HashMap<String,Any>()
                 map["image"] = uri.toString()
                 contentDTO.imageUrl = uri.toString()
+                contentDTO.uid = auth?.currentUser?.uid
+                contentDTO.userId = auth?.currentUser?.email
+                contentDTO.timestamp = System.currentTimeMillis()
                 firestore?.collection("userInfo")?.document(uid!!)?.set(contentDTO)
                 FirebaseFirestore.getInstance().collection("profileImages").document(uid!!).set(map)
             }
         }
     }
-
-    fun getProfileImage(uid: String?){
-        var contentDTOs: ArrayList<ContentDTO> = arrayListOf()
-
-            firestore?.collection("userInfo")
-                ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                    contentDTOs.clear()
-
-                    //Sometimes, This code return null of querySnapshot when it signout
-                    if(querySnapshot == null) return@addSnapshotListener
-
-                    for(snapshot in querySnapshot!!.documents){
-                        var item = snapshot.toObject(ContentDTO::class.java)
-                        contentDTOs.add(item!!)
-                        firestore?.collection("userInfo")?.document(uid.toString())?.collection("friends")?.document(item.uid.toString())?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
-
-                            if (documentSnapshot?.data != null) return@addSnapshotListener
-
-                            else{
-                                var friendDTO = ContentDTO.Friend()
-
-                                firestore?.runTransaction { transaction ->
-
-
-                                    friendDTO.userId = item.userId
-                                    friendDTO.uid = item.uid
-                                    friendDTO.friend = false
-                                    friendDTO.timestamp = System.currentTimeMillis()
-                                    FirebaseFirestore.getInstance().collection("userInfo").document(uid!!)
-                                        .collection("friends").document(item.uid!!).set(friendDTO)
-                                    Log.d("LOG_X", item.userId.toString())
-                                }
-                            }
-                        }
-                    }
-
-
-
-        firestore?.collection("profileImages")?.document(uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
-
-            if(documentSnapshot?.data != null){
-                var url = documentSnapshot?.data!!["image"]
-                imageUrlStart = url.toString()
-                if (isAdded) {
-                    Glide.with(this).load(url).apply(RequestOptions().circleCrop())
-                        .into(image_view!!)
-                }
-            }
-            else{
-                imageUrlStart = DEFAULT_IMAGE_URL
-                if (isAdded) {
-                    Glide.with(this).load(imageUrlStart).apply(RequestOptions().circleCrop())
-                        .into(image_view!!)
-                }
-                var map = HashMap<String,Any>()
-                map["image"] = imageUrlStart.toString()
-                FirebaseFirestore.getInstance().collection("profileImages").document(uid!!).set(map)
-            }
-            contentUpload(uid)
-
-        }
-
-    }
 }
-    }

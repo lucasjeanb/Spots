@@ -15,6 +15,7 @@ import com.bonnelife.spots.database.model.ContentDTO
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.contact_item_view_layout.view.*
+import kotlinx.android.synthetic.main.fragment_contacts.*
 import kotlinx.android.synthetic.main.fragment_contacts.view.*
 
 class ContactsFragment : Fragment() {
@@ -27,12 +28,12 @@ class ContactsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         var view =
-            LayoutInflater.from(activity).inflate(R.layout.fragment_contacts, container, false)
+            LayoutInflater.from(requireActivity()).inflate(R.layout.fragment_contacts, container, false)
         firestore = FirebaseFirestore.getInstance()
         uid = FirebaseAuth.getInstance().currentUser?.uid
 
         view.contact_recyclerview.adapter = DetailViewRecyclerViewAdapter()
-        view.contact_recyclerview.layoutManager = LinearLayoutManager(activity)
+        view.contact_recyclerview.layoutManager = LinearLayoutManager(requireActivity())
         return view
     }
 

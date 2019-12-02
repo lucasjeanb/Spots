@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
@@ -43,6 +44,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.contact_item_view_layout.view.contactName_textview
 import kotlinx.android.synthetic.main.contact_item_view_layout.view.contact_imageview
@@ -52,6 +54,9 @@ import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.myspot_item_view_layout.view.*
 import kotlinx.android.synthetic.main.select_item_view_layout.view.*
 import kotlinx.android.synthetic.main.sheet_map.view.*
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
@@ -62,8 +67,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     var longitude: Double = 0.0
     var firestore : FirebaseFirestore? = null
     var uid : String? = null
-
-
+    lateinit var storage : FirebaseStorage
+    var auth : FirebaseAuth? = null
+    var imageUrlStart : String? = "https://picsum.photos/200"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -73,7 +79,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         firestore = FirebaseFirestore.getInstance()
         uid = FirebaseAuth.getInstance().currentUser?.uid
-
+        storage = FirebaseStorage.getInstance()
+        auth = FirebaseAuth.getInstance()
 
         val root = inflater.inflate(R.layout.fragment_map, container, false)
         return root
@@ -98,6 +105,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 ?.addToBackStack(null)
                 ?.commit()
         }
+        getProfileImage(uid)
+        contentUpload(uid)
     }
 
     override fun onResume() {
@@ -105,7 +114,63 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         initComponent()
 
     }
+    fun getProfileImage(uid: String?){
+        var contentDTOs: java.util.ArrayList<ContentDTO> = arrayListOf()
 
+        firestore?.collection("userInfo")
+            ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                contentDTOs.clear()
+
+                //Sometimes, This code return null of querySnapshot when it signout
+                if(querySnapshot == null) return@addSnapshotListener
+
+                for(snapshot in querySnapshot!!.documents){
+                    var item = snapshot.toObject(ContentDTO::class.java)
+                    contentDTOs.add(item!!)
+                    firestore?.collection("userInfo")?.document(uid.toString())?.collection("friends")?.document(item.uid.toString())?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+
+                        if (documentSnapshot?.data != null) return@addSnapshotListener
+
+                        else{
+                            var friendDTO = ContentDTO.Friend()
+
+                            firestore?.runTransaction { transaction ->
+
+
+                                friendDTO.userId = item.userId
+                                friendDTO.uid = item.uid
+                                friendDTO.friend = false
+                                friendDTO.timestamp = System.currentTimeMillis()
+                                FirebaseFirestore.getInstance().collection("userInfo").document(uid!!)
+                                    .collection("friends").document(item.uid!!).set(friendDTO)
+                                Log.d("LOG_X", item.userId.toString())
+                            }
+                        }
+                    }
+                }
+            }
+    }
+
+    fun contentUpload(uid: String?) {
+        firestore?.collection("userInfo")?.document(uid!!)
+            ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+
+                if(querySnapshot?.exists() == false) {
+                    var timestamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+                    var imageFileName = "IMAGE_" + timestamp + "_.png"
+
+                    var storageRef = storage?.reference?.child("pics")?.child(imageFileName)
+                    var contentDTO = ContentDTO()
+                    contentDTO.uid = auth?.currentUser?.uid
+                    contentDTO.userId = auth?.currentUser?.email
+                    contentDTO.imageUrl = imageUrlStart
+                    contentDTO.timestamp = System.currentTimeMillis()
+                    firestore?.collection("userInfo")?.document(uid!!)?.set(contentDTO)
+
+                    //fragmentManager?.popBackStack()
+                }
+            }
+    }
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
