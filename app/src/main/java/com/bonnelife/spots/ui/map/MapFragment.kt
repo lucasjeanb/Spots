@@ -78,7 +78,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val root = inflater.inflate(R.layout.fragment_map, container, false)
         return root
     }
-    @SuppressLint("RestrictedApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -91,7 +90,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         fab_directions.setOnClickListener {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED)
-            fab_directions.visibility = View.GONE
         }
         profile_button.setOnClickListener {
             var profileFragment = ProfileFragment()
@@ -249,21 +247,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         llBottomSheet.select_recyclerview.layoutManager = LinearLayoutManager(activity)
 
         bottomSheetBehavior.isFitToContents = true
-        bottomSheetBehavior.peekHeight = 400
+        bottomSheetBehavior.peekHeight = 100
+        bottomSheetBehavior.isHideable = false
+
         // set callback for changes
         bottomSheetBehavior.setBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(p0: View, p1: Float) {
             }
 
-            @SuppressLint("RestrictedApi")
             override fun onStateChanged(p0: View, p1: Int) {
-                bottomSheetBehavior.isHideable == false
-                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
-
-                    fab_directions.visibility = View.GONE
-                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN)
-                fab_directions.visibility = View.VISIBLE
             }
 
         })
@@ -371,11 +364,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                             .collection("friends").document(contentDTOuid!!).set(friendDTO)
                             ?.addOnSuccessListener {
                                 Toast.makeText(requireContext(), "Friend Removed", Toast.LENGTH_SHORT).show()
-                                //notifyItemRemoved(p1)
-                                val llBottomSheet = requireActivity().findViewById(R.id.bottom_sheet) as LinearLayout
-                                var bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet)
-                                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
                             }
+                        notifyDataSetChanged()
+                        initComponent()
+
                     }
                     setNegativeButton("Cancel") { _, _ ->
                     }

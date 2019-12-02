@@ -66,7 +66,6 @@ class ProfileFragment : Fragment() {
         firestore = FirebaseFirestore.getInstance()
 
         uid = FirebaseAuth.getInstance().currentUser?.uid
-        getProfileImage(uid)
 
 
 
@@ -80,6 +79,8 @@ class ProfileFragment : Fragment() {
         fragment_background_click.setOnClickListener{
             fragmentManager?.popBackStack()
         }
+        getProfileImage(uid)
+
         currentUser?.let { user ->
             /*
             Glide.with(this)
@@ -147,36 +148,24 @@ class ProfileFragment : Fragment() {
     }
 
     fun contentUpload(uid: String?) {
-        //Make filename
+        firestore?.collection("userInfo")?.document(uid!!)
+            ?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
 
-        var timestamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        var imageFileName = "IMAGE_" + timestamp + "_.png"
+                if(querySnapshot == null) {
+                    var timestamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+                    var imageFileName = "IMAGE_" + timestamp + "_.png"
 
-        var storageRef = storage?.reference?.child("pics")?.child(imageFileName)
+                    var storageRef = storage?.reference?.child("pics")?.child(imageFileName)
+                    var contentDTO = ContentDTO()
+                    contentDTO.uid = auth?.currentUser?.uid
+                    contentDTO.userId = auth?.currentUser?.email
+                    contentDTO.imageUrl = imageUrlStart
+                    contentDTO.timestamp = System.currentTimeMillis()
+                    firestore?.collection("userInfo")?.document(uid!!)?.set(contentDTO)
 
-        //Promise method
-
-            var contentDTO = ContentDTO()
-
-
-            //Insert uid of user
-            contentDTO.uid = auth?.currentUser?.uid
-
-            //Insert userId
-            contentDTO.userId = auth?.currentUser?.email
-
-
-            //Insert downloadUrl of image
-            contentDTO.imageUrl = imageUrlStart
-
-
-            //Insert timestamp
-            contentDTO.timestamp = System.currentTimeMillis()
-
-            firestore?.collection("userInfo")?.document(uid!!)?.set(contentDTO)
-
-            //fragmentManager?.popBackStack()
-
+                    //fragmentManager?.popBackStack()
+                }
+            }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -213,7 +202,9 @@ class ProfileFragment : Fragment() {
                         contentDTOs.add(item!!)
                         firestore?.collection("userInfo")?.document(uid.toString())?.collection("friends")?.document(item.uid.toString())?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
 
-                            if (documentSnapshot?.data == null) {
+                            if (documentSnapshot?.data != null) return@addSnapshotListener
+
+                            else{
                                 var friendDTO = ContentDTO.Friend()
 
                                 firestore?.runTransaction { transaction ->
@@ -225,6 +216,7 @@ class ProfileFragment : Fragment() {
                                     friendDTO.timestamp = System.currentTimeMillis()
                                     FirebaseFirestore.getInstance().collection("userInfo").document(uid!!)
                                         .collection("friends").document(item.uid!!).set(friendDTO)
+                                    Log.d("LOG_X", item.userId.toString())
                                 }
                             }
                         }
